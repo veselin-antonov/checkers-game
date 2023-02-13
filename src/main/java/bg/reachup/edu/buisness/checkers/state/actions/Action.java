@@ -1,7 +1,7 @@
-package bg.reachup.edu.checkers.state.actions;
+package bg.reachup.edu.buisness.checkers.state.actions;
 
-import bg.reachup.edu.checkers.state.Coordinates;
-import bg.reachup.edu.checkers.state.Piece;
+import bg.reachup.edu.buisness.checkers.state.Coordinates;
+import bg.reachup.edu.buisness.checkers.state.Piece;
 
 public record Action(ActionType actionType, Direction direction, Piece piece, Coordinates originPosition) {
     @Override

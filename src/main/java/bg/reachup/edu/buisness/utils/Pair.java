@@ -1,4 +1,4 @@
-package bg.reachup.edu.utils;
+package bg.reachup.edu.buisness.utils;
 
 import java.util.Objects;
 

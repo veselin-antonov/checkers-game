@@ -1,4 +1,4 @@
-package bg.reachup.edu.utils.csv_reader.exceptions;
+package bg.reachup.edu.buisness.utils.csv_reader.exceptions;
 
 public class InputStreamReadingException extends RuntimeException{
     @Override

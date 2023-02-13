@@ -1,4 +1,4 @@
-package bg.reachup.edu.checkers.exceptions;
+package bg.reachup.edu.buisness.exceptions;
 
 public class BoardFileAccessException extends RuntimeException{
     @Override

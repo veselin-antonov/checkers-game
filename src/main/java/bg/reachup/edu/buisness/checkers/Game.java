@@ -1,7 +1,7 @@
-package bg.reachup.edu.checkers;
+package bg.reachup.edu.buisness.checkers;
 
-import bg.reachup.edu.checkers.state.State;
-import bg.reachup.edu.utils.Pair;
+import bg.reachup.edu.buisness.utils.Pair;
+import bg.reachup.edu.buisness.checkers.state.State;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package bg.reachup.edu.checkers.state;
+package bg.reachup.edu.buisness.checkers.state;
 
 /**
  * Enumeration representing the types of pieces in the game of Checkers as well as their visual representation as characters

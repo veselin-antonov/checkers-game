@@ -1,9 +1,10 @@
 package bg.reachup.edu.checkers;
 
-import bg.reachup.edu.checkers.state.Board;
-import bg.reachup.edu.checkers.state.Coordinates;
-import bg.reachup.edu.checkers.state.State;
-import bg.reachup.edu.utils.Pair;
+import bg.reachup.edu.buisness.checkers.Game;
+import bg.reachup.edu.buisness.checkers.state.Board;
+import bg.reachup.edu.buisness.checkers.state.Coordinates;
+import bg.reachup.edu.buisness.checkers.state.State;
+import bg.reachup.edu.buisness.utils.Pair;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

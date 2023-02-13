@@ -1,8 +1,8 @@
-package bg.reachup.edu.utils.csv_reader;
+package bg.reachup.edu.buisness.utils.csv_reader;
 
-import bg.reachup.edu.utils.csv_reader.exceptions.FileReadingException;
-import bg.reachup.edu.utils.csv_reader.exceptions.InputStreamReadingException;
-import bg.reachup.edu.utils.csv_reader.exceptions.ReaderReadingException;
+import bg.reachup.edu.buisness.utils.csv_reader.exceptions.FileReadingException;
+import bg.reachup.edu.buisness.utils.csv_reader.exceptions.InputStreamReadingException;
+import bg.reachup.edu.buisness.utils.csv_reader.exceptions.ReaderReadingException;
 
 import java.io.*;
 import java.util.*;

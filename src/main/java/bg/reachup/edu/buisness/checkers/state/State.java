@@ -1,9 +1,9 @@
-package bg.reachup.edu.checkers.state;
+package bg.reachup.edu.buisness.checkers.state;
 
-import bg.reachup.edu.checkers.state.actions.Action;
-import bg.reachup.edu.checkers.state.actions.ActionType;
-import bg.reachup.edu.checkers.state.actions.Direction;
-import bg.reachup.edu.utils.Pair;
+import bg.reachup.edu.buisness.checkers.state.actions.Action;
+import bg.reachup.edu.buisness.checkers.state.actions.ActionType;
+import bg.reachup.edu.buisness.utils.Pair;
+import bg.reachup.edu.buisness.checkers.state.actions.Direction;
 
 import java.util.*;
 import java.util.function.Predicate;

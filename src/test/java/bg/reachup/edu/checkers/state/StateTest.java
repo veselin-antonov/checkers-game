@@ -1,8 +1,11 @@
 package bg.reachup.edu.checkers.state;
 
+import bg.reachup.edu.buisness.checkers.state.Board;
+import bg.reachup.edu.buisness.checkers.state.Coordinates;
+import bg.reachup.edu.buisness.checkers.state.Piece;
+import bg.reachup.edu.buisness.checkers.state.State;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.LinkedList;

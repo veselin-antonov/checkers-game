@@ -1,9 +1,10 @@
-package bg.reachup.edu.checkers.state;
+package bg.reachup.edu.buisness.checkers.state;
 
-import bg.reachup.edu.checkers.exceptions.BoardFileAccessException;
-import bg.reachup.edu.checkers.exceptions.CoordinatesOutOfBoundsException;
-import bg.reachup.edu.checkers.exceptions.IllegalPiecePlacementException;
-import bg.reachup.edu.utils.csv_reader.CSVReader;
+import bg.reachup.edu.buisness.exceptions.BoardFileAccessException;
+import bg.reachup.edu.buisness.exceptions.CoordinatesOutOfBoundsException;
+import bg.reachup.edu.buisness.exceptions.IllegalPiecePlacementException;
+import bg.reachup.edu.buisness.exceptions.InvalidPieceStringException;
+import bg.reachup.edu.buisness.utils.csv_reader.CSVReader;
 
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -29,7 +30,7 @@ public class Board {
      * @return Board instance based on the contents of the file at the specified path
      * @throws IllegalPiecePlacementException                                 if there is a piece at an illegal spot
      * @throws BoardFileAccessException                                       if the file at the specified path could not be accessed
-     * @throws bg.reachup.edu.checkers.exceptions.InvalidPieceStringException if an invalid symbol was found while parsing the map
+     * @throws InvalidPieceStringException if an invalid symbol was found while parsing the map
      */
     public static Board parseFromFile(String filePath) {
         try (CSVReader csvReader = new CSVReader(filePath);) {
@@ -50,7 +51,7 @@ public class Board {
      * @param board string representation of the board to be parsed
      * @return Board instance based on the specified string board representation
      * @throws IllegalPiecePlacementException                                 if there is a piece at an illegal spot
-     * @throws bg.reachup.edu.checkers.exceptions.InvalidPieceStringException if an invalid symbol was found while parsing the board
+     * @throws InvalidPieceStringException if an invalid symbol was found while parsing the board
      */
     public static Board parseFromString(String board) {
         List<List<String>> strings = Arrays.stream(board.split("\n"))
@@ -198,7 +199,7 @@ public class Board {
     /**
      * Returns a string representation of this board. The string representation consists of
      * all the pieces on the board, seperated by vertical bars ("|"). Elements are converted to strings as by
-     * {@link bg.reachup.edu.checkers.state.Piece#toString()}. The null elements are represented as empty spaces (" ").
+     * {@link Piece#toString()}. The null elements are represented as empty spaces (" ").
      * @return a string representation of this board
      */
     @Override
