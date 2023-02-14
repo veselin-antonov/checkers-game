@@ -1,6 +1,5 @@
-package bg.reachup.edu.presentation;
+package bg.reachup.edu.presentation.controllers;
 
-import bg.reachup.edu.buisness.exceptions.PlayerIDNotFoundException;
 import bg.reachup.edu.buisness.services.PlayerService;
 import bg.reachup.edu.data.entities.Player;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.annotation.HttpConstraint;
 import java.util.List;
 
 @Controller
@@ -28,10 +26,10 @@ public class PlayerController {
         return service.searchByID(id);
     }
 
-    @GetMapping("/placeholder")
-    @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody String loadPlaceholderData() {
-        return service.loadPlaceholderData() ? "Loaded placeholder data" : "Database already contains some data";
+    @RequestMapping("/test-data")
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "Loaded test data")
+    public void loadTestData() {
+        service.loadPlaceholderData();
     }
 
     @PostMapping("/register")

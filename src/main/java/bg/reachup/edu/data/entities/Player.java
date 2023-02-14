@@ -9,7 +9,8 @@ public class Player {
     public Player() {
     }
 
-    public Player(String email, int gamesPlayed) {
+    public Player(String username, String email, int gamesPlayed) {
+        this.username = username;
         this.email = email;
         this.gamesPlayed = gamesPlayed;
     }
@@ -17,12 +18,16 @@ public class Player {
     @Id
     @GeneratedValue
     @Column(
-            name = "id",
             updatable = false
     )
     private Long id;
     @Column(
-            name="email",
+            nullable = false,
+            unique = true
+    )
+    private String username;
+
+    @Column(
             nullable = false,
             unique = true
     )
@@ -35,6 +40,14 @@ public class Player {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public String getEmail() {

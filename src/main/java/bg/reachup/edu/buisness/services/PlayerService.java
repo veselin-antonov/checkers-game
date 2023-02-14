@@ -1,13 +1,12 @@
 package bg.reachup.edu.buisness.services;
 
-import bg.reachup.edu.buisness.exceptions.PlayerAlreadyExistsException;
-import bg.reachup.edu.buisness.exceptions.PlayerIDNotFoundException;
+import bg.reachup.edu.buisness.exceptions.players.*;
 import bg.reachup.edu.data.entities.Player;
-import bg.reachup.edu.data.entities.repositories.PlayerRepository;
+import bg.reachup.edu.data.repositories.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,33 +27,45 @@ public class PlayerService {
         return byId.get();
     }
 
-    public boolean loadPlaceholderData() {
+    public void loadPlaceholderData() {
         if (!repository.findAll().isEmpty()) {
-            return false;
+            throw new PlayerTableNotEmptyException();
         }
         repository.saveAll(List.of(
                         new Player(
+                                "Ivancho_07",
                                 "ivan@example.com",
                                 10
                         ),
                         new Player(
+                                "xX_Gosho_Xx",
                                 "gosho@example.com",
                                 7
                         ),
                         new Player(
+                                "Petar4o",
                                 "pesho_1997@example.com",
                                 81
                         )
                 )
         );
-        return true;
     }
 
     public Player registerPlayer(Player player) {
         try {
+            if (player.getUsername() == null || player.getUsername().isBlank()) {
+                throw new MissingUsernameException();
+            }
+            if (player.getEmail() == null || player.getEmail().isBlank()) {
+                throw new MissingEmailException();
+            }
             return repository.save(player);
-        } catch (RuntimeException e) {
+        } catch (DataIntegrityViolationException e) {
             throw new PlayerAlreadyExistsException();
         }
+    }
+
+    public Player searchByUsername(String player) {
+        return repository.findByUsername(player);
     }
 }
