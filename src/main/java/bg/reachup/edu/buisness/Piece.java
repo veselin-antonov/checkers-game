@@ -1,4 +1,4 @@
-package bg.reachup.edu.buisness.checkers.state;
+package bg.reachup.edu.buisness;
 
 import bg.reachup.edu.buisness.exceptions.InvalidPieceStringException;
 
@@ -8,21 +8,21 @@ import bg.reachup.edu.buisness.exceptions.InvalidPieceStringException;
  *
  */
 public class Piece {
-    private final PieceType type;
-
     public static final int PIECE_COST = 1;
     public static final int QUEEN_PIECE_COST = 3;
     private boolean isQueen;
+
+    private boolean isWhite;
     private Coordinates coordinates;
 
     /**
      * Creates an instance of the {@link Piece} class described by the specified arguments
-     * @param type the piece's actionType
+     * @param isWhite the piece's actionType
      * @param isQueen the value that sets if the piece is a queen
      * @param coordinates the piece's coordinates
      */
-    public Piece(PieceType type, boolean isQueen, Coordinates coordinates) {
-        this.type = type;
+    public Piece(boolean isWhite, boolean isQueen, Coordinates coordinates) {
+        this.isWhite = isWhite;
         this.isQueen = isQueen;
         this.coordinates = coordinates;
     }
@@ -32,7 +32,7 @@ public class Piece {
      * @param otherPiece piece which fields will be copied
      */
     public Piece(Piece otherPiece) {
-        this.type = otherPiece.type;
+        this.isWhite = otherPiece.isWhite;
         this.isQueen = otherPiece.isQueen;
         this.coordinates = otherPiece.coordinates.copy();
     }
@@ -51,21 +51,13 @@ public class Piece {
      */
     public static Piece getOfType(String type, int row, int column) {
         return switch (type) {
-            case "X" -> new Piece(PieceType.WHITE, false, new Coordinates(row, column));
-            case "O" -> new Piece(PieceType.BLACK, false, new Coordinates(row, column));
-            case "Xx" -> new Piece(PieceType.WHITE, true, new Coordinates(row, column));
-            case "Oo" -> new Piece(PieceType.BLACK, true, new Coordinates(row, column));
+            case "X" -> new Piece(true, false, new Coordinates(row, column));
+            case "O" -> new Piece(false, false, new Coordinates(row, column));
+            case "Xx" -> new Piece(true, true, new Coordinates(row, column));
+            case "Oo" -> new Piece(false, true, new Coordinates(row, column));
             case "_" -> null;
             default -> throw new InvalidPieceStringException(type);
         };
-    }
-
-    /**
-     * Returns the type of this piece
-     * @return the type of this piece
-     */
-    public PieceType getType() {
-        return type;
     }
 
     /**
@@ -85,13 +77,13 @@ public class Piece {
     }
 
     /**
-     * Returns true if the specified piece has a different {@link PieceType}
+     * Returns true if the specified piece is of different color
      * <p>If the specified piece is null the method returns false</p>
      * @param piece piece to be checked
-     * @return true if the specified piece has a different {@link PieceType}, false if the specified piece is null
+     * @return true if the specified piece is of different color, false if the specified piece is null
      */
     public boolean isOpponent(Piece piece) {
-        return piece != null && this.type != piece.type;
+        return piece != null && this.isQueen ^ piece.isQueen;
     }
 
     /** Returns true if this piece is a queen
@@ -119,28 +111,31 @@ public class Piece {
     }
 
     /**
-     * Returns true if the piece is of actionType {@link PieceType#WHITE}
-     * @return true if the piece is of actionType {@link PieceType#WHITE}
+     * Returns true if the piece is white
+     * @return true if the piece is white
      */
     public boolean isWhite() {
-        return type == PieceType.WHITE;
+        return isWhite;
     }
 
     /**
-     * Returns true if the piece is of actionType {@link PieceType#BLACK}
-     * @return true if the piece is of actionType {@link PieceType#BLACK}
+     * Returns true if the piece is black
+     * @return true if the piece is black
      */
     public boolean isBlack() {
-        return type == PieceType.BLACK;
+        return !isWhite;
     }
 
+    // TODO: 15.2.2023 JavaDoc
     /**
-     * Returns a string representation of this piece. The string representation consists of the string returned by
-     * the method {@link PieceType#getSymbol()} if the piece is normal and {@link PieceType#getQueenSymbol()} if it's a queen.
-     * @return string representation of this piece
+     *
      */
     @Override
     public String toString() {
-        return String.valueOf(isQueen ? type.getQueenSymbol() : type.getSymbol());
+        if (isWhite) {
+            return isQueen ? "Xx" : "X";
+        } else {
+            return isQueen ? "Oo" : "O";
+        }
     }
 }

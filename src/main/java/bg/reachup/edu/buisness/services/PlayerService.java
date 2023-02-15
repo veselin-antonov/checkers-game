@@ -22,7 +22,7 @@ public class PlayerService {
     public Player searchByID(Long id) {
         Optional<Player> byId = repository.findById(id);
         if (byId.isEmpty()) {
-            throw new PlayerIDNotFoundException(id);
+            throw new NoSuchPlayerIDException();
         }
         return byId.get();
     }

@@ -1,6 +1,7 @@
 package bg.reachup.edu.data.entities;
 
-import org.hibernate.annotations.Cascade;
+import bg.reachup.edu.buisness.Board;
+import bg.reachup.edu.data.converters.BoardConverter;
 
 import javax.persistence.*;
 
@@ -14,14 +15,14 @@ public class Game {
     public Game(
             Player player1,
             Player player2,
-            String board,
-            boolean isWhitesTurn,
+            Board board,
+            boolean isPlayer1Turn,
             boolean isFinished
     ) {
         this.player1 = player1;
         this.player2 = player2;
         this.board = board;
-        this.isWhitesTurn = isWhitesTurn;
+        this.isPlayer1Turn = isPlayer1Turn;
         this.isFinished = isFinished;
     }
 
@@ -34,8 +35,9 @@ public class Game {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn
     private Player player2;
-    private String board;
-    private boolean isWhitesTurn;
+    @Convert(converter = BoardConverter.class)
+    private Board board;
+    private boolean isPlayer1Turn;
     private boolean isFinished;
 
     public Long getId() {
@@ -62,20 +64,20 @@ public class Game {
         this.player2 = player2;
     }
 
-    public String getBoard() {
+    public Board getBoard() {
         return board;
     }
 
-    public void setBoard(String board) {
+    public void setBoard(Board board) {
         this.board = board;
     }
 
-    public boolean isWhitesTurn() {
-        return isWhitesTurn;
+    public boolean isPlayer1Turn() {
+        return isPlayer1Turn;
     }
 
-    public void setWhitesTurn(boolean whitesTurn) {
-        isWhitesTurn = whitesTurn;
+    public void setPlayer1Turn(boolean player1) {
+        isPlayer1Turn = player1;
     }
 
     public boolean isFinished() {
@@ -93,7 +95,7 @@ public class Game {
                 ", player1=" + player1.getUsername() +
                 ", player2=" + player2.getUsername() +
                 ", board='" + board + '\'' +
-                ", isWhitesTurn=" + isWhitesTurn +
+                ", isWhitesTurn=" + isPlayer1Turn +
                 '}';
     }
 }

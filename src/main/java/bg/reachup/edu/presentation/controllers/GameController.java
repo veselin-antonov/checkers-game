@@ -2,7 +2,6 @@ package bg.reachup.edu.presentation.controllers;
 
 import bg.reachup.edu.buisness.services.GameService;
 import bg.reachup.edu.data.entities.Game;
-import bg.reachup.edu.data.entities.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -22,18 +21,26 @@ public class GameController {
         this.service = service;
     }
 
-    @GetMapping("/search/all")
+    @GetMapping("")
     public @ResponseBody List<Game> getAllGames() {
         return service.getAll();
     }
 
-    @PostMapping("/create")
+    @GetMapping("/{id}")
+    public @ResponseBody Game getByID(@PathVariable Long id) {
+        return service.getByID(id);
+    }
+
+    @PostMapping("")
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "New game was created successfully")
     public @ResponseBody Game createNewGame(@RequestBody Map<String, String> playerUsernames) {
         return service.createNewGame(playerUsernames.get("player1"), playerUsernames.get("player2"));
     }
 
-    @ResponseStatus(value = HttpStatus.CREATED, reason = "Test game was inserted into the database")
+    @PostMapping("{id}/")
+
     @RequestMapping("/test-data")
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "Test game was inserted into the database")
     public void testData() {
         service.insertTestData();
     }

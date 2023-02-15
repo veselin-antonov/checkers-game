@@ -1,6 +1,6 @@
 package bg.reachup.edu.buisness.exceptions;
 
-import bg.reachup.edu.buisness.checkers.state.Coordinates;
+import bg.reachup.edu.buisness.Coordinates;
 
 public class IllegalPiecePlacementException extends RuntimeException {
     private final Coordinates coordinates;

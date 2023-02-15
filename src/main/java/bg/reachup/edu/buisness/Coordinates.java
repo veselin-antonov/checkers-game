@@ -1,4 +1,4 @@
-package bg.reachup.edu.buisness.checkers.state;
+package bg.reachup.edu.buisness;
 
 /**
  * Two-dimensional coordinates for the {@link Board} class

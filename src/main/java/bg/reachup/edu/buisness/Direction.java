@@ -1,4 +1,4 @@
-package bg.reachup.edu.buisness.checkers.state.actions;
+package bg.reachup.edu.buisness;
 
 public enum Direction {
     UP_LEFT, UP_RIGHT, DOWN_LEFT, DOWN_RIGHT;

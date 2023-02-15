@@ -14,26 +14,27 @@ import java.util.List;
 public class PlayerController {
     @Autowired
     PlayerService service;
-    @GetMapping("/search")
+    @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody List<Player> all() {
         return service.getAllPlayers();
     }
 
-    @GetMapping("/search/{id}")
+    @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody Player searchPlayerByID(@PathVariable Long id) {
         return service.searchByID(id);
+    }
+
+    @PostMapping("")
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "Successfully registered new player")
+    public @ResponseBody Player registerPlayer(@RequestBody Player player) {
+        return service.registerPlayer(player);
     }
 
     @RequestMapping("/test-data")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "Loaded test data")
     public void loadTestData() {
         service.loadPlaceholderData();
-    }
-
-    @PostMapping("/register")
-    public @ResponseBody Player registerPlayer(@RequestBody Player player) {
-        return service.registerPlayer(player);
     }
 }

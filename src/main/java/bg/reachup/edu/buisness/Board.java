@@ -1,4 +1,4 @@
-package bg.reachup.edu.buisness.checkers.state;
+package bg.reachup.edu.buisness;
 
 import bg.reachup.edu.buisness.exceptions.BoardFileAccessException;
 import bg.reachup.edu.buisness.exceptions.CoordinatesOutOfBoundsException;
@@ -18,7 +18,7 @@ import java.util.StringJoiner;
 public class Board {
     private final Piece[][] board;
 
-    private Board(Piece[][] board) {
+    public Board(Piece[][] board) {
         this.board = board;
     }
 
@@ -196,23 +196,17 @@ public class Board {
         return getAt(coordinates) == null;
     }
 
+    // TODO: 15.2.2023 JavaDoc
     /**
-     * Returns a string representation of this board. The string representation consists of
-     * all the pieces on the board, seperated by vertical bars ("|"). Elements are converted to strings as by
-     * {@link Piece#toString()}. The null elements are represented as empty spaces (" ").
-     * @return a string representation of this board
+     *
      */
     @Override
     public String toString() {
         StringJoiner rowJoiner = new StringJoiner("\n");
-        StringBuilder capRow = new StringBuilder();
-        capRow.append("+");
-        capRow.append("-".repeat(board[0].length * 2 - 1));
-        capRow.append("+");
         for (Piece[] pieces : board) {
-            StringJoiner pieceJoiner = new StringJoiner("|", "|", "|");
+            StringJoiner pieceJoiner = new StringJoiner(",");
             for (Piece piece : pieces) {
-                pieceJoiner.add(piece == null ? " " : piece.toString());
+                pieceJoiner.add(piece == null ? "_" : piece.toString());
             }
             rowJoiner.add(pieceJoiner.toString());
         }

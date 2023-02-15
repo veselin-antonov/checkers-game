@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface GameRepository extends JpaRepository<Game, Long> {
-    boolean existsByPlayer1UsernameAndPlayer2UsernameAndIsFinishedIs(String player1, String player2, boolean isFinished);
+    boolean existsByPlayer1UsernameAndPlayer2UsernameAndIsFinished(String player1, String player2, boolean isFinished);
+
 }
