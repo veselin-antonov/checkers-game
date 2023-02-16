@@ -1,14 +1,16 @@
 package bg.reachup.edu.buisness.services;
 
-import bg.reachup.edu.buisness.Action;
 import bg.reachup.edu.buisness.Board;
 import bg.reachup.edu.buisness.exceptions.game.DuplicateUnfinishedGameException;
 import bg.reachup.edu.buisness.exceptions.game.GameTableNotEmptyException;
 import bg.reachup.edu.buisness.exceptions.game.NoSuchGameIDException;
+import bg.reachup.edu.data.dtos.GameDTO;
 import bg.reachup.edu.data.entities.Game;
+import bg.reachup.edu.data.mappers.GameMapper;
 import bg.reachup.edu.data.repositories.GameRepository;
+import bg.reachup.edu.data.repositories.PlayerRepository;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,13 +20,15 @@ import java.util.Optional;
 public class GameService {
 
     private final GameRepository repository;
-    private final PlayerService playerService;
+    private final GameMapper mapper;
+    private final PlayerRepository playerRepository;
 
 
     @Autowired
-    public GameService(GameRepository repository, PlayerService playerService) {
+    public GameService(GameRepository repository, GameMapper mapper, PlayerRepository playerRepository) {
         this.repository = repository;
-        this.playerService = playerService;
+        this.mapper = mapper;
+        this.playerRepository = playerRepository;
     }
 
     public void insertTestData() {
@@ -33,56 +37,58 @@ public class GameService {
         }
         repository.saveAll(List.of(
                 new Game(
-                    playerService.searchByID(1L),
-                    playerService.searchByID(2L),
-                    Board.parseFromString("_,X,_,X,_,X,_,X"),
-                    true,
-                    false),
+                        playerRepository.findById(1L).get(),
+                        playerRepository.findById(2L).get(),
+                        Board.parseFromString("_,X,_,X,_,X,_,X"),
+                        true,
+                        false),
                 new Game(
-                        playerService.searchByID(3L),
-                        playerService.searchByID(2L),
+                        playerRepository.findById(3L).get(),
+                        playerRepository.findById(2L).get(),
                         Board.parseFromString("_,Oo,_,O,_,O,_,O"),
                         true,
                         false),
                 new Game(
-                        playerService.searchByID(1L),
-                        playerService.searchByID(3L),
+                        playerRepository.findById(1L).get(),
+                        playerRepository.findById(3L).get(),
                         Board.parseFromString("_,X,_,X,_,Xx,_,X"),
                         true,
                         false)
         ));
     }
 
-    public List<Game> getAll() {
-        return repository.findAll();
+    public List<GameDTO> getAll() {
+        return repository.findAll().stream().map(mapper::toDTO).toList();
     }
 
-    public Game getByID(Long id) {
+    public GameDTO getByID(Long id) {
         Optional<Game> toReturn = repository.findById(id);
-        if (toReturn.isPresent()) {
+        if (toReturn.isEmpty()) {
             throw new NoSuchGameIDException();
         }
-        return toReturn.get();
+        LoggerFactory.getLogger(GameService.class).info(toReturn.get().toString());
+        return mapper.toDTO(toReturn.get());
     }
 
     private Board getStartSetup() {
         return Board.parseFromString("_,O,_,O,_,O,_,O\nO,_,O,_,O,_,O,_\n_,O,_,O,_,O,_,O\n_,_,_,_,_,_,_,_\n_,_,_,_,_,_,_,_\nX,_,X,_,X,_,X,_\n_,X,_,X,_,X,_,X\nX,_,X,_,X,_,X,_");
     }
 
-    public Game createNewGame(String player1, String player2) {
+    public GameDTO createNewGame(String player1, String player2) {
         if (repository.existsByPlayer1UsernameAndPlayer2UsernameAndIsFinished(player1, player2, false)
-            || repository.existsByPlayer1UsernameAndPlayer2UsernameAndIsFinished(player2, player1, false)) {
+                || repository.existsByPlayer1UsernameAndPlayer2UsernameAndIsFinished(player2, player1, false)) {
             throw new DuplicateUnfinishedGameException();
         }
-        return repository.save(new Game(
-                playerService.searchByUsername(player1),
-                playerService.searchByUsername(player2),
-                getStartSetup(),
-                true,
-                false
-        ));
+        return mapper.toDTO(
+                repository.save(new Game(
+                        playerRepository.findByUsername(player1),
+                        playerRepository.findByUsername(player2),
+                        getStartSetup(),
+                        true,
+                        false
+                ))
+        );
     }
-
 
 
 //    public Game makeMove(Action move) {

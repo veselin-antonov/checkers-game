@@ -1,6 +1,7 @@
 package bg.reachup.edu.presentation.controllers;
 
 import bg.reachup.edu.buisness.services.PlayerService;
+import bg.reachup.edu.data.dtos.PlayerDTO;
 import bg.reachup.edu.data.entities.Player;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,19 +17,19 @@ public class PlayerController {
     PlayerService service;
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody List<Player> all() {
+    public @ResponseBody List<PlayerDTO> all() {
         return service.getAllPlayers();
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody Player searchPlayerByID(@PathVariable Long id) {
+    public @ResponseBody PlayerDTO searchPlayerByID(@PathVariable Long id) {
         return service.searchByID(id);
     }
 
     @PostMapping("")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "Successfully registered new player")
-    public @ResponseBody Player registerPlayer(@RequestBody Player player) {
+    public @ResponseBody PlayerDTO registerPlayer(@RequestBody PlayerDTO player) {
         return service.registerPlayer(player);
     }
 

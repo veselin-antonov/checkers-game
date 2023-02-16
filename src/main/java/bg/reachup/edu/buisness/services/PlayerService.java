@@ -1,8 +1,11 @@
 package bg.reachup.edu.buisness.services;
 
 import bg.reachup.edu.buisness.exceptions.players.*;
+import bg.reachup.edu.data.dtos.PlayerDTO;
 import bg.reachup.edu.data.entities.Player;
+import bg.reachup.edu.data.mappers.PlayerMapper;
 import bg.reachup.edu.data.repositories.PlayerRepository;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -12,19 +15,25 @@ import java.util.Optional;
 
 @Service
 public class PlayerService {
-    @Autowired
     PlayerRepository repository;
+    PlayerMapper mapper;
 
-    public List<Player> getAllPlayers() {
-        return repository.findAll();
+    @Autowired
+    public PlayerService(PlayerRepository repository, PlayerMapper mapper) {
+        this.repository = repository;
+        this.mapper = mapper;
     }
 
-    public Player searchByID(Long id) {
+    public List<PlayerDTO> getAllPlayers() {
+        return repository.findAll().stream().map(mapper::toDTO).toList();
+    }
+
+    public PlayerDTO searchByID(Long id) {
         Optional<Player> byId = repository.findById(id);
         if (byId.isEmpty()) {
             throw new NoSuchPlayerIDException();
         }
-        return byId.get();
+        return mapper.toDTO(byId.get());
     }
 
     public void loadPlaceholderData() {
@@ -51,15 +60,18 @@ public class PlayerService {
         );
     }
 
-    public Player registerPlayer(Player player) {
+    public PlayerDTO registerPlayer(PlayerDTO playerDTO) {
         try {
-            if (player.getUsername() == null || player.getUsername().isBlank()) {
+            if (playerDTO.username() == null || playerDTO.username().isBlank()) {
                 throw new MissingUsernameException();
             }
-            if (player.getEmail() == null || player.getEmail().isBlank()) {
+            if (playerDTO.email() == null || playerDTO.email().isBlank()) {
                 throw new MissingEmailException();
             }
-            return repository.save(player);
+            Player player = new Player();
+            mapper.updateEntity(playerDTO, player);
+            LoggerFactory.getLogger("logger").info(player.toString());
+            return mapper.toDTO(repository.save(player));
         } catch (DataIntegrityViolationException e) {
             throw new PlayerAlreadyExistsException();
         }
