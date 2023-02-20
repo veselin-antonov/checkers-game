@@ -5,20 +5,25 @@ import bg.reachup.edu.buisness.exceptions.InvalidPieceStringException;
 /**
  * A game piece used to play the game Checkers.
  * <p>Each piece is represented by its actionType, coordinates and if it's either a normal or a queen piece.</p>
- *
  */
 public class Piece {
-    public static final int PIECE_COST = 1;
-    public static final int QUEEN_PIECE_COST = 3;
+    /**
+     * The integer cost of a normal piece used to determine its value
+     */
+    public static final int PIECE_VALUE = 1;
+    /**
+     * The integer cost of a queen piece used to determine its value
+     */
+    public static final int QUEEN_PIECE_VALUE = 3;
     private boolean isQueen;
-
-    private boolean isWhite;
+    private final boolean isWhite;
     private Coordinates coordinates;
 
     /**
      * Creates an instance of the {@link Piece} class described by the specified arguments
-     * @param isWhite the piece's actionType
-     * @param isQueen the value that sets if the piece is a queen
+     *
+     * @param isWhite     the piece's actionType
+     * @param isQueen     the value that sets if the piece is a queen
      * @param coordinates the piece's coordinates
      */
     public Piece(boolean isWhite, boolean isQueen, Coordinates coordinates) {
@@ -29,6 +34,7 @@ public class Piece {
 
     /**
      * Creates an instance of the {@link Piece} class with copies of the specified piece's fields
+     *
      * @param otherPiece piece which fields will be copied
      */
     public Piece(Piece otherPiece) {
@@ -39,12 +45,12 @@ public class Piece {
 
     /**
      * Returns an instance of this class, that is described by the input parameters.
-     *<p>The {@link String} parameter determines the actionType and if the piece is a queen or not,
-     *  while the integers - the coordinates of the piece.\nIf no such actionType exists, the method
-     *  throws an exception.</p>
+     * <p>The {@link String} parameter determines the actionType and if the piece is a queen or not,
+     * while the integers - the coordinates of the piece.\nIf no such actionType exists, the method
+     * throws an exception.</p>
      *
-     * @param type the string representation of the piece actionType
-     * @param row the first value of the piece's coordinates
+     * @param type   the string representation of the piece actionType
+     * @param row    the first value of the piece's coordinates
      * @param column the second value of the piece's coordinates
      * @return instance of this class, that is described by the input parameters
      * @throws InvalidPieceStringException if there is no such actionType as the given argument
@@ -62,6 +68,7 @@ public class Piece {
 
     /**
      * Returns the coordinates of this piece
+     *
      * @return the coordinates of this piece
      */
     public Coordinates getCoordinates() {
@@ -70,6 +77,7 @@ public class Piece {
 
     /**
      * Sets the coordinates field to the specified argument
+     *
      * @param coordinates coordinates to be set
      */
     public void setCoordinates(Coordinates coordinates) {
@@ -79,6 +87,7 @@ public class Piece {
     /**
      * Returns true if the specified piece is of different color
      * <p>If the specified piece is null the method returns false</p>
+     *
      * @param piece piece to be checked
      * @return true if the specified piece is of different color, false if the specified piece is null
      */
@@ -86,7 +95,9 @@ public class Piece {
         return piece != null && this.isQueen ^ piece.isQueen;
     }
 
-    /** Returns true if this piece is a queen
+    /**
+     * Returns true if this piece is a queen
+     *
      * @return true if this piece is a queen
      */
     public boolean isQueen() {
@@ -102,16 +113,18 @@ public class Piece {
 
     /**
      * Returns the integer value of this piece.
-     * The value is determined by the constants {@link Piece#PIECE_COST} and {@link Piece#QUEEN_PIECE_COST},
+     * The value is determined by the constants {@link Piece#PIECE_VALUE} and {@link Piece#QUEEN_PIECE_VALUE},
      * depending on the piece being e normal or queen piece respectively.
+     *
      * @return the integer value of this piece
      */
     public int getValue() {
-        return isQueen ? QUEEN_PIECE_COST : PIECE_COST;
+        return isQueen ? QUEEN_PIECE_VALUE : PIECE_VALUE;
     }
 
     /**
      * Returns true if the piece is white
+     *
      * @return true if the piece is white
      */
     public boolean isWhite() {
@@ -120,15 +133,21 @@ public class Piece {
 
     /**
      * Returns true if the piece is black
+     *
      * @return true if the piece is black
      */
     public boolean isBlack() {
         return !isWhite;
     }
 
-    // TODO: 15.2.2023 JavaDoc
     /**
-     *
+     *  Returns a {@link String} representation of this piece. The pieces are represented as follows:<br>
+     *  <ul>
+     *      <li>White piece -> X</li>
+     *      <li>White queen piece -> Xx</li>
+     *      <li>Black piece -> O</li>
+     *      <li>Black queen piece -> Oo</li>
+     *  </ul>
      */
     @Override
     public String toString() {

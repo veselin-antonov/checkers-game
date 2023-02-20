@@ -7,6 +7,7 @@ import bg.reachup.edu.buisness.exceptions.GameAlreadyCompletedException;
 import bg.reachup.edu.buisness.exceptions.game.DuplicateUnfinishedGameException;
 import bg.reachup.edu.buisness.exceptions.game.IncorrectExecutorException;
 import bg.reachup.edu.buisness.exceptions.game.NoSuchGameIDException;
+import bg.reachup.edu.data.converters.BoardConverter;
 import bg.reachup.edu.data.dtos.ActionDTO;
 import bg.reachup.edu.data.entities.Game;
 import bg.reachup.edu.data.entities.Player;
@@ -14,6 +15,7 @@ import bg.reachup.edu.data.mappers.ActionMapper;
 import bg.reachup.edu.data.repositories.GameRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.SpringProperties;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -26,12 +28,14 @@ public class GameService {
     private final GameRepository repository;
     private final ActionMapper actionMapper;
     private final PlayerService playerService;
+    private final BoardConverter boardConverter;
 
     @Autowired
-    public GameService(GameRepository repository, ActionMapper actionMapper, PlayerService playerService) {
+    public GameService(GameRepository repository, ActionMapper actionMapper, PlayerService playerService, BoardConverter boardConverter) {
         this.repository = repository;
         this.actionMapper = actionMapper;
         this.playerService = playerService;
+        this.boardConverter = boardConverter;
     }
 
     public List<Game> getAll() {
@@ -43,16 +47,12 @@ public class GameService {
         return repository.findById(id).orElseThrow(NoSuchGameIDException::new);
     }
 
-    private Board getStartSetup() {
-        return Board.parseFromString("_,O,_,O,_,O,_,O\nO,_,O,_,O,_,O,_\n_,O,_,O,_,O,_,O\n_,_,_,_,_,_,_,_\n_,_,_,_,_,_,_,_\nX,_,X,_,X,_,X,_\n_,X,_,X,_,X,_,X\nX,_,X,_,X,_,X,_");
-    }
-
     public Game createNewGame(String player1Username, String player2Username) {
         Player player1 = playerService.searchByUsername(player1Username);
         Player player2 = playerService.searchByUsername(player2Username);
 
         ExampleMatcher ignoringMatcher = ExampleMatcher
-                .matchingAny()
+                .matchingAll()
                 .withIgnorePaths("isPlayer1Turn");
 
         Example<Game> example1 = Example.of(
@@ -78,10 +78,11 @@ public class GameService {
         if (repository.exists(example1) || repository.exists(example2)) {
             throw new DuplicateUnfinishedGameException();
         }
+        String boardString = "_,O,_,O,_,O,_,O\nO,_,O,_,O,_,O,_\n_,O,_,O,_,O,_,O\n_,_,_,_,_,_,_,_\n_,_,_,_,_,_,_,_\nX,_,X,_,X,_,X,_\n_,X,_,X,_,X,_,X\nX,_,X,_,X,_,X,_";
         return repository.save(new Game(
                         player1,
                         player2,
-                        getStartSetup(),
+                        boardConverter.convertToEntityAttribute(boardString),
                         true,
                         false
                 )

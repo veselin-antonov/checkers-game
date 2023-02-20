@@ -1,18 +1,7 @@
 package bg.reachup.edu.buisness;
 
-import bg.reachup.edu.buisness.exceptions.BoardFileAccessException;
 import bg.reachup.edu.buisness.exceptions.CoordinatesOutOfBoundsException;
-import bg.reachup.edu.buisness.exceptions.IllegalPiecePlacementException;
-import bg.reachup.edu.buisness.exceptions.InvalidPieceStringException;
-import bg.reachup.edu.buisness.utils.csv_reader.CSVReader;
-import bg.reachup.edu.data.converters.BoardConverter;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 
-import java.io.FileNotFoundException;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.StringJoiner;
 
@@ -24,64 +13,6 @@ public class Board {
 
     public Board(Piece[][] board) {
         this.board = board;
-    }
-
-    /**
-     * Parses the file at the specified path
-     * into a new Board instance based on its contents
-     *
-     * @param filePath location of the file to be parsed
-     * @return Board instance based on the contents of the file at the specified path
-     * @throws IllegalPiecePlacementException                                 if there is a piece at an illegal spot
-     * @throws BoardFileAccessException                                       if the file at the specified path could not be accessed
-     * @throws InvalidPieceStringException if an invalid symbol was found while parsing the map
-     */
-    public static Board parseFromFile(String filePath) {
-        try (CSVReader csvReader = new CSVReader(filePath);) {
-            List<List<String>> strings = new LinkedList<>();
-            for (List<String> line : csvReader) {
-                strings.add(line);
-            }
-            return parseMap(strings);
-        } catch (FileNotFoundException e) {
-            throw new BoardFileAccessException();
-        }
-    }
-
-    /**
-     * Parses the specified string representation of a board
-     * into a new Board instance based on its contents
-     *
-     * @param board string representation of the board to be parsed
-     * @return Board instance based on the specified string board representation
-     * @throws IllegalPiecePlacementException                                 if there is a piece at an illegal spot
-     * @throws InvalidPieceStringException if an invalid symbol was found while parsing the board
-     */
-    public static Board parseFromString(String board) {
-        List<List<String>> strings = Arrays.stream(board.split("\n"))
-                .map(line -> line.split(","))
-                .map(Arrays::asList)
-                .toList();
-        return parseMap(strings);
-    }
-
-    private static Board parseMap(List<List<String>> strings) {
-        Piece[][] newBoard = new Piece[strings.size()][strings.get(0).size()];
-        int row = 0;
-        int column = 0;
-        for (List<String> list : strings) {
-            for (String string : list) {
-                Piece newPiece = Piece.getOfType(string, row, column);
-                if (newPiece != null && (row + column) % 2 == 0) {
-                    throw new IllegalPiecePlacementException(newPiece.getCoordinates());
-                }
-                newBoard[row][column] = newPiece;
-                column++;
-            }
-            column = 0;
-            row++;
-        }
-        return new Board(newBoard);
     }
 
     /**
@@ -200,9 +131,12 @@ public class Board {
         return getAt(coordinates) == null;
     }
 
-    // TODO: 15.2.2023 JavaDoc
     /**
-     *
+     * Returns a string representation of this object.
+     * <p>The string representation consists of all the pieces, converted to {@link java.lang.String} as per the {@link Piece#toString} method and separated
+     * by a column ",".<br>
+     * The <i>null</i> objects are represented as an underscore symbol "_". Every row of the board ends with a newline character "\n".</p>
+     * @return a string representation of this object
      */
     @Override
     public String toString() {

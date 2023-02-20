@@ -1,1 +1,0 @@
-packageSearchIndex = [{"l":"All Packages","u":"allpackages-index.html"},{"l":"bg.reachup.edu.checkers"},{"l":"bg.reachup.edu.checkers.exceptions"},{"l":"bg.reachup.edu.checkers.state"},{"l":"bg.reachup.edu.checkers.state.actions"}];updateSearchResults();
