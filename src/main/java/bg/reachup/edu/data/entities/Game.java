@@ -27,13 +27,13 @@ public class Game {
     }
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn
+    @JoinColumn(name = "player1_id", referencedColumnName = "id")
     private Player player1;
     @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn
+    @JoinColumn(name = "player2_id", referencedColumnName = "id")
     private Player player2;
     @Convert(converter = BoardConverter.class)
     private Board board;
@@ -90,12 +90,12 @@ public class Game {
 
     @Override
     public String toString() {
-        return "Game{" +
-                "id=" + id +
-                ", player1=" + player1.getUsername() +
-                ", player2=" + player2.getUsername() +
-                ", board='" + board + '\'' +
-                ", isWhitesTurn=" + isPlayer1Turn +
-                '}';
+        return "%s%nGameID: %d%nPlayer 1: %s%nPlayer 2: %s%nIn turn: %s".formatted(
+                board.toString(),
+                id,
+                player1,
+                player2,
+                isPlayer1Turn ? player1 : player2
+        );
     }
 }

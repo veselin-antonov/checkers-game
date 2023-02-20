@@ -2,7 +2,7 @@ package bg.reachup.edu.presentation.controllers;
 
 import bg.reachup.edu.buisness.services.PlayerService;
 import bg.reachup.edu.data.dtos.PlayerDTO;
-import bg.reachup.edu.data.entities.Player;
+import bg.reachup.edu.data.mappers.PlayerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -13,29 +13,30 @@ import java.util.List;
 @Controller
 @RequestMapping("/players")
 public class PlayerController {
-    @Autowired
     PlayerService service;
+    PlayerMapper mapper;
+
+    @Autowired
+    public PlayerController(PlayerService service, PlayerMapper mapper) {
+        this.service = service;
+        this.mapper = mapper;
+    }
+
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody List<PlayerDTO> all() {
-        return service.getAllPlayers();
+        return mapper.toDTOs(service.getAllPlayers());
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody PlayerDTO searchPlayerByID(@PathVariable Long id) {
-        return service.searchByID(id);
+        return mapper.toDTO(service.searchByID(id));
     }
 
     @PostMapping("")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "Successfully registered new player")
     public @ResponseBody PlayerDTO registerPlayer(@RequestBody PlayerDTO player) {
-        return service.registerPlayer(player);
-    }
-
-    @RequestMapping("/test-data")
-    @ResponseStatus(value = HttpStatus.CREATED, reason = "Loaded test data")
-    public void loadTestData() {
-        service.loadPlaceholderData();
+        return mapper.toDTO(service.registerPlayer(player));
     }
 }

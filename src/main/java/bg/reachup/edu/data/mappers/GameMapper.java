@@ -4,9 +4,7 @@ import bg.reachup.edu.buisness.Board;
 import bg.reachup.edu.data.dtos.GameDTO;
 import bg.reachup.edu.data.entities.Game;
 import bg.reachup.edu.data.entities.Player;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
+import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface GameMapper {

@@ -1,10 +1,11 @@
 package bg.reachup.edu.presentation.controllers;
 
 import bg.reachup.edu.buisness.services.GameService;
+import bg.reachup.edu.data.dtos.ActionDTO;
 import bg.reachup.edu.data.dtos.GameDTO;
+import bg.reachup.edu.data.mappers.GameMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,31 +17,35 @@ import java.util.Map;
 public class GameController {
 
     GameService service;
+    GameMapper mapper;
 
     @Autowired
-    public GameController(GameService service) {
+    public GameController(GameService service, GameMapper mapper) {
         this.service = service;
+        this.mapper = mapper;
     }
 
     @GetMapping("")
+    @ResponseStatus(HttpStatus.OK)
     public @ResponseBody List<GameDTO> getAllGames() {
-        return service.getAll();
+        return service.getAll().stream().map(mapper::toDTO).toList();
     }
 
-    @GetMapping(value = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public @ResponseBody GameDTO getByID(@PathVariable Long id) {
-        return service.getByID(id);
+        return mapper.toDTO(service.getByID(id));
     }
 
     @PostMapping("")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "New game was created successfully")
     public @ResponseBody GameDTO createNewGame(@RequestBody Map<String, String> playerUsernames) {
-        return service.createNewGame(playerUsernames.get("player1"), playerUsernames.get("player2"));
+        return mapper.toDTO(service.createNewGame(playerUsernames.get("player1"), playerUsernames.get("player2")));
     }
 
-    @RequestMapping("/test-data")
-    @ResponseStatus(value = HttpStatus.CREATED, reason = "Test game was inserted into the database")
-    public void testData() {
-        service.insertTestData();
+    @PostMapping("/{id}")
+    @ResponseStatus(HttpStatus.CREATED)
+    public @ResponseBody GameDTO makeMove(@PathVariable("id") Long gameID, @RequestBody() ActionDTO actionDTO) {
+        return mapper.toDTO(service.makeMove(gameID, actionDTO));
     }
 }

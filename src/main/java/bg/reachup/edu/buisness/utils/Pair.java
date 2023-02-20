@@ -1,7 +1,5 @@
 package bg.reachup.edu.buisness.utils;
 
-import java.util.Objects;
-
 /**
  * Generic record that holds two objects of the specified types
  */

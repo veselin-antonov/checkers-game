@@ -1,7 +1,8 @@
 package bg.reachup.edu.data.dtos;
 
-public record PlayerDTO (
+public record PlayerDTO(
         String username,
         String email,
         int gamesPlayed
-) {}
+) {
+}

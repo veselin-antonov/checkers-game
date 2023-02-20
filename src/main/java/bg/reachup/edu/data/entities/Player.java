@@ -3,13 +3,13 @@ package bg.reachup.edu.data.entities;
 import javax.persistence.*;
 
 @Entity
-@Table(name="players")
+@Table(name = "players")
 public class Player {
 
     public Player() {
     }
 
-    public Player(String username, String email, int gamesPlayed) {
+    public Player(String username, String email, Integer gamesPlayed) {
         this.username = username;
         this.email = email;
         this.gamesPlayed = gamesPlayed;
@@ -32,7 +32,7 @@ public class Player {
             unique = true
     )
     private String email;
-    private int gamesPlayed;
+    private Integer gamesPlayed;
 
     public Long getId() {
         return id;
@@ -58,11 +58,11 @@ public class Player {
         this.email = email;
     }
 
-    public int getGamesPlayed() {
+    public Integer getGamesPlayed() {
         return gamesPlayed;
     }
 
-    public void setGamesPlayed(int gamesPlayed) {
+    public void setGamesPlayed(Integer gamesPlayed) {
         this.gamesPlayed = gamesPlayed;
     }
 
@@ -70,7 +70,8 @@ public class Player {
     public String toString() {
         return "Player{" +
                 "id=" + id +
-                ", username='" + email + '\'' +
+                ", username='" + username + '\'' +
+                ", email='" + email + '\'' +
                 ", gamesPlayed=" + gamesPlayed +
                 '}';
     }

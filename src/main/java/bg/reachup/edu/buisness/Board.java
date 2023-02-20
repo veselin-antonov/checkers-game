@@ -5,8 +5,12 @@ import bg.reachup.edu.buisness.exceptions.CoordinatesOutOfBoundsException;
 import bg.reachup.edu.buisness.exceptions.IllegalPiecePlacementException;
 import bg.reachup.edu.buisness.exceptions.InvalidPieceStringException;
 import bg.reachup.edu.buisness.utils.csv_reader.CSVReader;
+import bg.reachup.edu.data.converters.BoardConverter;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.jsonschema.JsonSerializableSchema;
 
 import java.io.FileNotFoundException;
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;

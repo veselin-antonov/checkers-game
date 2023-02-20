@@ -3,9 +3,13 @@ package bg.reachup.edu.data.converters;
 import bg.reachup.edu.buisness.Board;
 import bg.reachup.edu.buisness.Piece;
 import bg.reachup.edu.buisness.exceptions.IllegalPiecePlacementException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializer;
+import com.fasterxml.jackson.databind.SerializerProvider;
 
 import javax.persistence.AttributeConverter;
 import javax.persistence.Converter;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
