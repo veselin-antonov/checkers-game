@@ -1,7 +1,6 @@
 package bg.reachup.edu.data.entities;
 
-import bg.reachup.edu.buisness.Board;
-import bg.reachup.edu.data.converters.BoardConverter;
+import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
 
@@ -15,29 +14,28 @@ public class Game {
     public Game(
             Player player1,
             Player player2,
-            Board board,
-            boolean isPlayer1Turn,
+            State state,
             boolean isFinished
     ) {
         this.player1 = player1;
         this.player2 = player2;
-        this.board = board;
-        this.isPlayer1Turn = isPlayer1Turn;
+        this.state = state;
         this.isFinished = isFinished;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "player1_id", referencedColumnName = "id")
     private Player player1;
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne
     @JoinColumn(name = "player2_id", referencedColumnName = "id")
     private Player player2;
-    @Convert(converter = BoardConverter.class)
-    private Board board;
-    private boolean isPlayer1Turn;
+    @OneToOne
+    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @JoinColumn(name = "state_id", referencedColumnName = "id")
+    private State state;
     private boolean isFinished;
 
     public Long getId() {
@@ -64,20 +62,12 @@ public class Game {
         this.player2 = player2;
     }
 
-    public Board getBoard() {
-        return board;
+    public State getState() {
+        return state;
     }
 
-    public void setBoard(Board board) {
-        this.board = board;
-    }
-
-    public boolean isPlayer1Turn() {
-        return isPlayer1Turn;
-    }
-
-    public void setPlayer1Turn(boolean player1) {
-        isPlayer1Turn = player1;
+    public void setState(State state) {
+        this.state = state;
     }
 
     public boolean isFinished() {
@@ -91,11 +81,11 @@ public class Game {
     @Override
     public String toString() {
         return "%s%nGameID: %d%nPlayer 1: %s%nPlayer 2: %s%nIn turn: %s".formatted(
-                board.toString(),
+                state.toString(),
                 id,
                 player1,
                 player2,
-                isPlayer1Turn ? player1 : player2
+                state.isPlayer1Turn() ? player1 : player2
         );
     }
 }

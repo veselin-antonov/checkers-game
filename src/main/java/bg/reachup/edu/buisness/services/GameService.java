@@ -2,7 +2,6 @@ package bg.reachup.edu.buisness.services;
 
 import bg.reachup.edu.buisness.Action;
 import bg.reachup.edu.buisness.Board;
-import bg.reachup.edu.buisness.State;
 import bg.reachup.edu.buisness.exceptions.GameAlreadyCompletedException;
 import bg.reachup.edu.buisness.exceptions.game.DuplicateUnfinishedGameException;
 import bg.reachup.edu.buisness.exceptions.game.IncorrectExecutorException;
@@ -11,30 +10,33 @@ import bg.reachup.edu.data.converters.BoardConverter;
 import bg.reachup.edu.data.dtos.ActionDTO;
 import bg.reachup.edu.data.entities.Game;
 import bg.reachup.edu.data.entities.Player;
+import bg.reachup.edu.data.entities.State;
 import bg.reachup.edu.data.mappers.ActionMapper;
 import bg.reachup.edu.data.repositories.GameRepository;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.SpringProperties;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
 public class GameService {
 
     private final GameRepository repository;
-    private final ActionMapper actionMapper;
     private final PlayerService playerService;
+    private final StateService stateService;
+    private final ActionMapper actionMapper;
     private final BoardConverter boardConverter;
 
     @Autowired
-    public GameService(GameRepository repository, ActionMapper actionMapper, PlayerService playerService, BoardConverter boardConverter) {
+    public GameService(GameRepository repository, PlayerService playerService, StateService stateService, ActionMapper actionMapper, BoardConverter boardConverter) {
         this.repository = repository;
-        this.actionMapper = actionMapper;
         this.playerService = playerService;
+        this.stateService = stateService;
+        this.actionMapper = actionMapper;
         this.boardConverter = boardConverter;
     }
 
@@ -78,11 +80,23 @@ public class GameService {
         if (repository.exists(example1) || repository.exists(example2)) {
             throw new DuplicateUnfinishedGameException();
         }
-        String boardString = "_,O,_,O,_,O,_,O\nO,_,O,_,O,_,O,_\n_,O,_,O,_,O,_,O\n_,_,_,_,_,_,_,_\n_,_,_,_,_,_,_,_\nX,_,X,_,X,_,X,_\n_,X,_,X,_,X,_,X\nX,_,X,_,X,_,X,_";
+        Board board = boardConverter.convertToEntityAttribute(
+                """
+                        _,O,_,O,_,O,_,O
+                        O,_,O,_,O,_,O,_
+                        _,O,_,O,_,O,_,O
+                        _,_,_,_,_,_,_,_
+                        _,_,_,_,_,_,_,_
+                        X,_,X,_,X,_,X,_
+                        _,X,_,X,_,X,_,X
+                        X,_,X,_,X,_,X,_
+                        """
+        );
+        State state = new State(board, true);
         return repository.save(new Game(
                         player1,
                         player2,
-                        boardConverter.convertToEntityAttribute(boardString),
+                        state,
                         true,
                         false
                 )
@@ -104,14 +118,47 @@ public class GameService {
             throw new IncorrectExecutorException();
         }
 
-        State gameState = new State(game.getBoard(), game.isPlayer1Turn());
-        State newGameState = gameState.executeAction(action);
-        game.setBoard(newGameState.getBoard());
-        game.setPlayer1Turn(!game.isPlayer1Turn());
-        game.setFinished(newGameState.isFinal());
+        State gameState = game.getState();
+        State newGameState = stateService.executeAction(action, gameState);
+        game.setState(newGameState);
         repository.save(game);
         LoggerFactory.getLogger(Game.class).info("%n%s%n".formatted(action));
         LoggerFactory.getLogger(GameService.class).info("%n-------------------%n%s%n-------------------".formatted(game));
         return game;
+    }
+
+    @PostConstruct
+    private void loadTestData() {
+        if (repository.count() == 0) {
+            repository.saveAll(List.of(
+                    new Game(
+                            playerService.searchByID(1L),
+                            playerService.searchByID(2L),
+                            new State(
+                                    boardConverter.convertToEntityAttribute("_,X,_,X,_,X,_,X"),
+                                    true
+                            ),
+                            true,
+                            false),
+                    new Game(
+                            playerService.searchByID(3L),
+                            playerService.searchByID(2L),
+                            new State(
+                                    boardConverter.convertToEntityAttribute("_,Oo,_,O,_,O,_,O"),
+                                    true
+                            ),
+                            true,
+                            false),
+                    new Game(
+                            playerService.searchByID(1L),
+                            playerService.searchByID(3L),
+                            new State(
+                                    boardConverter.convertToEntityAttribute("_,X,_,X,_,Xx,_,X"),
+                                    true
+                            ),
+                            true,
+                            false)
+            ));
+        }
     }
 }

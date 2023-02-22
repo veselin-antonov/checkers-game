@@ -11,6 +11,7 @@ import bg.reachup.edu.data.repositories.PlayerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
@@ -45,5 +46,29 @@ public class PlayerService {
 
     public Player searchByUsername(String player) {
         return repository.findByUsername(player).orElseThrow(NoSuchUsernameFoundException::new);
+    }
+
+    @PostConstruct
+    private void loadTestData() {
+        if (repository.count() == 0) {
+            repository.saveAll(List.of(
+                            new Player(
+                                    "Ivancho_07",
+                                    "ivan@example.com",
+                                    10
+                            ),
+                            new Player(
+                                    "xX_Gosho_Xx",
+                                    "gosho@example.com",
+                                    7
+                            ),
+                            new Player(
+                                    "Petar4o",
+                                    "pesho_1997@example.com",
+                                    81
+                            )
+                    )
+            );
+        }
     }
 }

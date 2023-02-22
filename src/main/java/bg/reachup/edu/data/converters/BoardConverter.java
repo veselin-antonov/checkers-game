@@ -11,6 +11,11 @@ import javax.persistence.Converter;
 import java.util.Arrays;
 import java.util.List;
 
+
+/**
+ * Class that JPA uses to automatically  convert a {@link Board} instance
+ * to a string representation and the opposite during database operations.
+ */
 @Component
 @Converter(autoApply = true)
 public class BoardConverter implements AttributeConverter<Board, String> {
