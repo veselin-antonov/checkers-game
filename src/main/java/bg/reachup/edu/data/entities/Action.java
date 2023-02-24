@@ -1,6 +1,4 @@
-package bg.reachup.edu.buisness;
-
-import bg.reachup.edu.data.entities.Coordinates;
+package bg.reachup.edu.data.entities;
 
 /**
  * Record describing an action that can be performed during a game of checkers.

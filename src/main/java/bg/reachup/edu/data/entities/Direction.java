@@ -1,4 +1,4 @@
-package bg.reachup.edu.buisness;
+package bg.reachup.edu.data.entities;
 
 /**
  * An enumeration representing the possible directions in which the pieces in the game Checkers can be moved

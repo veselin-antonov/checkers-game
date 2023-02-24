@@ -1,4 +1,4 @@
-package bg.reachup.edu.buisness;
+package bg.reachup.edu.data.entities;
 
 /**
  * Enumeration of the two possible actions that can be performed in the game of Checkers

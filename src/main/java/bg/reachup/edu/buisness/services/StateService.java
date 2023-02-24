@@ -1,19 +1,13 @@
 package bg.reachup.edu.buisness.services;
 
-import bg.reachup.edu.buisness.*;
+import bg.reachup.edu.buisness.Pair;
 import bg.reachup.edu.buisness.exceptions.state.IllegalActionException;
 import bg.reachup.edu.buisness.exceptions.state.NoPieceAtCoordinatesException;
 import bg.reachup.edu.buisness.exceptions.state.OpponentPieceException;
-import bg.reachup.edu.data.entities.Board;
-import bg.reachup.edu.data.entities.Coordinates;
-import bg.reachup.edu.data.entities.Piece;
-import bg.reachup.edu.data.entities.State;
+import bg.reachup.edu.data.entities.*;
 import org.springframework.stereotype.Service;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -86,7 +80,7 @@ public class StateService {
     private List<State> movePiece(Piece piece, State state) {
         List<State> newStates = new LinkedList<>();
         for (MoveAction moveAction : possibleMoveActions) {
-            newStates.add(tryMove(piece, moveAction, state));
+            tryMove(piece, moveAction, state).ifPresent(newStates::add);
         }
         return newStates;
     }
@@ -99,7 +93,7 @@ public class StateService {
      * - the piece type is allowed to move in that direction
      * - the given predicate returns true for the given piece.
      * */
-    private State tryMove(
+    private Optional<State> tryMove(
             Piece piece, MoveAction action, State state
     ) {
         Coordinates positionOffset = action.positionOffset;
@@ -111,9 +105,9 @@ public class StateService {
                 && state.getBoard().isFree(newCoordinates)
         ) {
             Board newBoard = state.getBoard().movePiece(piece.getCoordinates(), newCoordinates);
-            return new State(newBoard, !state.isPlayer1Turn());
+            return Optional.of(new State(newBoard, !state.isPlayer1Turn(), new Action(ActionType.MOVE, action.moveDirection(), piece.getCoordinates(), null)));
         }
-        return null;
+        return Optional.empty();
     }
 
     /*
@@ -171,8 +165,8 @@ public class StateService {
     private List<State> captureWithPiece(Piece piece, State state) {
         List<Pair<Integer, List<State>>> biggestCaptures = new LinkedList<>();
         for (CaptureAction captureAction : possibleCaptureActions) {
-            Pair<Integer, List<State>> captureStates = tryCaptureWith(piece, captureAction, state);
-            if (captureStates != null) {
+            Pair<Integer, List<State>> captureStates = tryCaptureWith(piece, captureAction, state, true);
+            if (!captureStates.value2().isEmpty()) {
                 biggestCaptures.add(captureStates);
             }
         }
@@ -199,7 +193,8 @@ public class StateService {
     private Pair<Integer, List<State>> tryCaptureWith(
             Piece piece,
             CaptureAction action,
-            State state
+            State state,
+            boolean chainCapture
     ) {
         Board board = state.getBoard();
         Coordinates opponentOffset = action.opponentOffset;
@@ -214,15 +209,27 @@ public class StateService {
                 || !board.isWithin(newPos)
                 || !board.isFree(newPos)
         ) {
-            return null;
+            return new Pair<>(state.getCaptureStreak(), List.of());
         }
-        Piece toCapture = board.getAt(opponentPos);
-        if (toCapture == null || !toCapture.isOpponent(piece)) {
-            return null;
+        Optional<Piece> toCapture = board.getAt(opponentPos);
+        if (toCapture.isEmpty() || !toCapture.get().isOpponent(piece)) {
+            return new Pair<>(state.getCaptureStreak(), List.of());
         }
         Board newBoard = board.movePiece(oldPos, newPos);
-        newBoard.removeAt(toCapture.getCoordinates());
-        State newState = new State(newBoard, state.isPlayer1Turn(), newBoard.getAt(newPos), state.getCaptureStreak() + 1);
+        newBoard.removeAt(toCapture.get().getCoordinates());
+        State newState = new State(
+                newBoard,
+                state.isPlayer1Turn(),
+                newBoard.getAt(newPos).get(),
+                state.getCaptureStreak() + 1,
+                state.getCaptureStreak() > 0 && piece.equals(state.getAttacker()) ?
+                        state.getOriginAction() :
+                        new Action(ActionType.CAPTURE, action.captureDirection(), oldPos, null)
+        );
+
+        if (!chainCapture) {
+            return new Pair<>(newState.getCaptureStreak(), List.of(newState));
+        }
 
         TreeMap<Integer, List<State>> bestCaptureStreakStates = captureWithPiece(newState.getAttacker(), newState).stream()
                 .collect(Collectors.groupingBy(State::getCaptureStreak, TreeMap::new, Collectors.toList()));
@@ -239,32 +246,44 @@ public class StateService {
      */
     // TODO: 22.2.2023 At end of turn -> switch player if necessary, set final state
     public State executeAction(Action action, State state) {
-        Piece piece = state.getBoard().getAt(action.piecePosition());
-        if (piece == null) {
-            throw new NoPieceAtCoordinatesException();
-        }
+        Piece piece = state.getBoard().getAt(action.piecePosition()).orElseThrow(NoPieceAtCoordinatesException::new);
+
         if ((state.isPlayer1Turn() && piece.isBlack()) || (!state.isPlayer1Turn() && piece.isWhite())) {
             throw new OpponentPieceException();
         }
+
+        State newState;
         List<State> possibleCaptures = captureWithPiece(piece, state);
-        if (possibleCaptures.isEmpty() && action.actionType() == ActionType.CAPTURE) {
+        if ((possibleCaptures.isEmpty() && action.actionType() == ActionType.CAPTURE)
+                || (!possibleCaptures.isEmpty() && action.actionType() == ActionType.MOVE)) {
             throw new IllegalActionException();
         } else if (possibleCaptures.isEmpty() && action.actionType() == ActionType.MOVE) {
             MoveAction moveAction = possibleMoveActions[action.direction().ordinal()];
-            State newState = tryMove(piece, moveAction, state);
-            if (newState == null) {
-                throw new IllegalActionException();
-            } else {
-                newState.setPlayer1Turn(!state.isPlayer1Turn());
-                newState.setId(state.getId());
-                return newState;
-            }
-        } else if (!possibleCaptures.isEmpty() && action.actionType() == ActionType.CAPTURE) {
-            throw new IllegalActionException();
+            newState = tryMove(piece, moveAction, state).orElseThrow(IllegalActionException::new);
+            newState.setPlayer1Turn(!state.isPlayer1Turn());
+            newState.setId(state.getId());
         } else {
-            // TODO: 20.2.2023 Capture execution.. one by one or all at once.. if all - how?
-            return null;
+            possibleCaptures = possibleCaptures.stream()
+                    .filter(capture -> capture.getOriginAction().direction() == action.direction())
+                    .toList();
+            if (possibleCaptures.isEmpty()) {
+                throw new IllegalActionException();
+            } else if (possibleCaptures.size() == 1) {
+                newState = possibleCaptures.get(0);
+                newState.setPlayer1Turn(!newState.isPlayer1Turn());
+            } else {
+                newState = tryCaptureWith(
+                        piece,
+                        possibleCaptureActions[action.direction().ordinal()],
+                        state,
+                        false
+                ).value2().get(0);
+                if (captureWithPiece(piece, newState).isEmpty()) {
+                    newState.setPlayer1Turn(!newState.isPlayer1Turn());
+                }
+            }
         }
+        return newState;
     }
 
     private int getPiecesScore(List<Piece> pieces) {

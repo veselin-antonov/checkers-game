@@ -92,7 +92,7 @@ public class Piece {
      * @return true if the specified piece is of different color, false if the specified piece is null
      */
     public boolean isOpponent(Piece piece) {
-        return piece != null && this.isQueen ^ piece.isQueen;
+        return piece != null && this.isWhite ^ piece.isWhite;
     }
 
     /**

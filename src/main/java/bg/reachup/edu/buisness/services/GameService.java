@@ -1,6 +1,6 @@
 package bg.reachup.edu.buisness.services;
 
-import bg.reachup.edu.buisness.Action;
+import bg.reachup.edu.data.entities.Action;
 import bg.reachup.edu.buisness.exceptions.game.DuplicateUnfinishedGameException;
 import bg.reachup.edu.buisness.exceptions.game.GameAlreadyCompletedException;
 import bg.reachup.edu.buisness.exceptions.game.IncorrectExecutorException;

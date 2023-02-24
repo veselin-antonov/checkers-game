@@ -1,6 +1,6 @@
 package bg.reachup.edu.presentation.mappers;
 
-import bg.reachup.edu.buisness.Action;
+import bg.reachup.edu.data.entities.Action;
 import bg.reachup.edu.presentation.dtos.ActionDTO;
 import org.mapstruct.Mapper;
 

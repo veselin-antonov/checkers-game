@@ -2,6 +2,7 @@ package bg.reachup.edu.data.entities;
 
 import bg.reachup.edu.data.exceptions.CoordinatesOutOfBoundsException;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
@@ -43,11 +44,12 @@ public class Board {
      * @return The piece at the specified coordinates
      * @throws CoordinatesOutOfBoundsException if the coordinates are outside the bounds of the board
      */
-    public Piece getAt(Coordinates coordinates) {
+    public Optional<Piece> getAt(Coordinates coordinates) {
         if (!isWithin(coordinates)) {
             throw new CoordinatesOutOfBoundsException();
         }
-        return board[coordinates.row()][coordinates.column()];
+        Piece piece = board[coordinates.row()][coordinates.column()];
+        return piece == null ? Optional.empty() : Optional.of(piece);
     }
 
     /**
@@ -76,7 +78,7 @@ public class Board {
      *                                         outside the bounds of the board
      */
     public Board movePiece(Coordinates piecePosition, Coordinates destination) {
-        if (!isWithin(piecePosition) || !isWithin(destination)) {
+        if (!isWithin(destination) || !isWithin(piecePosition)) {
             throw new CoordinatesOutOfBoundsException();
         }
         int newRow = destination.row();
@@ -127,7 +129,7 @@ public class Board {
         if (!isWithin(coordinates)) {
             throw new CoordinatesOutOfBoundsException();
         }
-        return getAt(coordinates) == null;
+        return getAt(coordinates).isEmpty();
     }
 
     /**
