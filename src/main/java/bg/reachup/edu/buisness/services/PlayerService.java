@@ -1,14 +1,11 @@
 package bg.reachup.edu.buisness.services;
 
-import bg.reachup.edu.buisness.exceptions.players.MissingEmailException;
-import bg.reachup.edu.buisness.exceptions.players.MissingUsernameException;
-import bg.reachup.edu.buisness.exceptions.players.NoSuchPlayerIDException;
-import bg.reachup.edu.buisness.exceptions.players.NoSuchUsernameFoundException;
-import bg.reachup.edu.data.dtos.PlayerDTO;
+import bg.reachup.edu.buisness.exceptions.players.*;
 import bg.reachup.edu.data.entities.Player;
-import bg.reachup.edu.data.mappers.PlayerMapper;
 import bg.reachup.edu.data.repositories.PlayerRepository;
+import bg.reachup.edu.presentation.mappers.PlayerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -16,8 +13,8 @@ import java.util.List;
 
 @Service
 public class PlayerService {
-    PlayerRepository repository;
-    PlayerMapper mapper;
+    final PlayerRepository repository;
+    final PlayerMapper mapper;
 
     @Autowired
     public PlayerService(PlayerRepository repository, PlayerMapper mapper) {
@@ -33,14 +30,16 @@ public class PlayerService {
         return repository.findById(id).orElseThrow(NoSuchPlayerIDException::new);
     }
 
-    public Player registerPlayer(PlayerDTO playerDTO) {
-        if (playerDTO.username() == null || playerDTO.username().isBlank()) {
+    public Player registerPlayer(Player player) {
+        if(repository.exists(Example.of(player))) {
+            throw new PlayerAlreadyExistsException();
+        }
+        if (player.getUsername() == null || player.getUsername().isBlank()) {
             throw new MissingUsernameException();
         }
-        if (playerDTO.email() == null || playerDTO.email().isBlank()) {
+        if (player.getEmail() == null || player.getEmail().isBlank()) {
             throw new MissingEmailException();
         }
-        Player player = mapper.toEntity(playerDTO);
         return repository.save(player);
     }
 

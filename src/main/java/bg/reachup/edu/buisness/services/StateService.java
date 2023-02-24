@@ -1,10 +1,12 @@
 package bg.reachup.edu.buisness.services;
 
 import bg.reachup.edu.buisness.*;
-import bg.reachup.edu.buisness.exceptions.IllegalActionException;
-import bg.reachup.edu.buisness.exceptions.NoPieceAtCoordinatesException;
-import bg.reachup.edu.buisness.exceptions.OpponentPieceException;
-import bg.reachup.edu.buisness.utils.Pair;
+import bg.reachup.edu.buisness.exceptions.state.IllegalActionException;
+import bg.reachup.edu.buisness.exceptions.state.NoPieceAtCoordinatesException;
+import bg.reachup.edu.buisness.exceptions.state.OpponentPieceException;
+import bg.reachup.edu.data.entities.Board;
+import bg.reachup.edu.data.entities.Coordinates;
+import bg.reachup.edu.data.entities.Piece;
 import bg.reachup.edu.data.entities.State;
 import org.springframework.stereotype.Service;
 
@@ -32,6 +34,7 @@ public class StateService {
             pieces.forEach(piece -> newChildren.addAll(movePiece(piece, state)));
         }
         newChildren.removeIf(Objects::isNull);
+        state.setChildren(newChildren);
         return newChildren;
     }
 
@@ -54,7 +57,7 @@ public class StateService {
      * ordinal value matches their index in the array, giving you direct access
      * when searching by direction.
      * */
-    MoveAction[] possibleMoveActions = {
+    private final MoveAction[] possibleMoveActions = {
             new MoveAction(
                     Direction.UP_LEFT,
                     new Coordinates(-1, -1),

@@ -1,7 +1,7 @@
-package bg.reachup.edu.data.mappers;
+package bg.reachup.edu.presentation.mappers;
 
 import bg.reachup.edu.buisness.Action;
-import bg.reachup.edu.data.dtos.ActionDTO;
+import bg.reachup.edu.presentation.dtos.ActionDTO;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")

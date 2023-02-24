@@ -1,6 +1,6 @@
-package bg.reachup.edu.data.mappers;
+package bg.reachup.edu.presentation.mappers;
 
-import bg.reachup.edu.data.dtos.GameDTO;
+import bg.reachup.edu.presentation.dtos.GameDTO;
 import bg.reachup.edu.data.entities.Game;
 import bg.reachup.edu.data.entities.Player;
 import org.mapstruct.Mapper;

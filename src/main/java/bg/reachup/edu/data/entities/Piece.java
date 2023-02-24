@@ -1,6 +1,6 @@
-package bg.reachup.edu.buisness;
+package bg.reachup.edu.data.entities;
 
-import bg.reachup.edu.buisness.exceptions.InvalidPieceStringException;
+import bg.reachup.edu.data.exceptions.InvalidPieceStringException;
 
 /**
  * A game piece used to play the game Checkers.

@@ -1,9 +1,9 @@
 package bg.reachup.edu.presentation.controllers;
 
 import bg.reachup.edu.buisness.services.GameService;
-import bg.reachup.edu.data.dtos.ActionDTO;
-import bg.reachup.edu.data.dtos.GameDTO;
-import bg.reachup.edu.data.mappers.GameMapper;
+import bg.reachup.edu.presentation.dtos.ActionDTO;
+import bg.reachup.edu.presentation.dtos.GameDTO;
+import bg.reachup.edu.presentation.mappers.GameMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -16,8 +16,8 @@ import java.util.Map;
 @RequestMapping("/games")
 public class GameController {
 
-    GameService service;
-    GameMapper mapper;
+    private final GameService service;
+    private final GameMapper mapper;
 
     @Autowired
     public GameController(GameService service, GameMapper mapper) {

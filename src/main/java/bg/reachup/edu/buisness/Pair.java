@@ -1,4 +1,4 @@
-package bg.reachup.edu.buisness.utils;
+package bg.reachup.edu.buisness;
 
 /**
  * Generic record that holds two objects of the specified types

@@ -1,8 +1,8 @@
 package bg.reachup.edu.presentation.controllers;
 
 import bg.reachup.edu.buisness.services.PlayerService;
-import bg.reachup.edu.data.dtos.PlayerDTO;
-import bg.reachup.edu.data.mappers.PlayerMapper;
+import bg.reachup.edu.presentation.dtos.PlayerDTO;
+import bg.reachup.edu.presentation.mappers.PlayerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -13,8 +13,8 @@ import java.util.List;
 @Controller
 @RequestMapping("/players")
 public class PlayerController {
-    PlayerService service;
-    PlayerMapper mapper;
+    private final PlayerService service;
+    private final PlayerMapper mapper;
 
     @Autowired
     public PlayerController(PlayerService service, PlayerMapper mapper) {
@@ -36,7 +36,7 @@ public class PlayerController {
 
     @PostMapping("")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "Successfully registered new player")
-    public @ResponseBody PlayerDTO registerPlayer(@RequestBody PlayerDTO player) {
-        return mapper.toDTO(service.registerPlayer(player));
+    public @ResponseBody PlayerDTO registerPlayer(@RequestBody PlayerDTO playerDTO) {
+        return mapper.toDTO(service.registerPlayer(mapper.toEntity(playerDTO)));
     }
 }

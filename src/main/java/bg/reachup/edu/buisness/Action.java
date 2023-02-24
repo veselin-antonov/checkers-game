@@ -1,5 +1,7 @@
 package bg.reachup.edu.buisness;
 
+import bg.reachup.edu.data.entities.Coordinates;
+
 /**
  * Record describing an action that can be performed during a game of checkers.
  * @param actionType the type of the action

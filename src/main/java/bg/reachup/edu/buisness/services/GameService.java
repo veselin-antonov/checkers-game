@@ -1,18 +1,19 @@
 package bg.reachup.edu.buisness.services;
 
 import bg.reachup.edu.buisness.Action;
-import bg.reachup.edu.buisness.Board;
-import bg.reachup.edu.buisness.exceptions.GameAlreadyCompletedException;
 import bg.reachup.edu.buisness.exceptions.game.DuplicateUnfinishedGameException;
+import bg.reachup.edu.buisness.exceptions.game.GameAlreadyCompletedException;
 import bg.reachup.edu.buisness.exceptions.game.IncorrectExecutorException;
 import bg.reachup.edu.buisness.exceptions.game.NoSuchGameIDException;
 import bg.reachup.edu.data.converters.BoardConverter;
-import bg.reachup.edu.data.dtos.ActionDTO;
+import bg.reachup.edu.data.entities.Board;
 import bg.reachup.edu.data.entities.Game;
 import bg.reachup.edu.data.entities.Player;
 import bg.reachup.edu.data.entities.State;
-import bg.reachup.edu.data.mappers.ActionMapper;
 import bg.reachup.edu.data.repositories.GameRepository;
+import bg.reachup.edu.presentation.dtos.ActionDTO;
+import bg.reachup.edu.presentation.mappers.ActionMapper;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -30,6 +31,7 @@ public class GameService {
     private final StateService stateService;
     private final ActionMapper actionMapper;
     private final BoardConverter boardConverter;
+    private static final Logger LOGGER = LoggerFactory.getLogger(GameService.class);
 
     @Autowired
     public GameService(GameRepository repository, PlayerService playerService, StateService stateService, ActionMapper actionMapper, BoardConverter boardConverter) {
@@ -45,8 +47,9 @@ public class GameService {
     }
 
     public Game getByID(Long id) {
-        LoggerFactory.getLogger(GameService.class).info("%n-------------------%n%s%n-------------------".formatted(repository.findById(id).orElseThrow(NoSuchGameIDException::new)));
-        return repository.findById(id).orElseThrow(NoSuchGameIDException::new);
+        Game game = repository.findById(id).orElseThrow(NoSuchGameIDException::new);
+        LOGGER.info("%n-------------------%n%s%n-------------------".formatted(game));
+        return game;
     }
 
     public Game createNewGame(String player1Username, String player2Username) {
@@ -62,7 +65,6 @@ public class GameService {
                         player1,
                         player2,
                         null,
-                        false,
                         false
                 ),
                 ignoringMatcher);
@@ -72,7 +74,6 @@ public class GameService {
                         player2,
                         player1,
                         null,
-                        false,
                         false
                 ),
                 ignoringMatcher);
@@ -97,7 +98,6 @@ public class GameService {
                         player1,
                         player2,
                         state,
-                        true,
                         false
                 )
         );
@@ -111,14 +111,14 @@ public class GameService {
         }
 
         Action action = actionMapper.toEntity(actionDTO);
+        State gameState = game.getState();
 
         Player actionExecutor = playerService.searchByUsername(action.executor());
-        Player currentPlayer = game.isPlayer1Turn() ? game.getPlayer1() : game.getPlayer2();
+        Player currentPlayer = gameState.isPlayer1Turn() ? game.getPlayer1() : game.getPlayer2();
         if (!actionExecutor.equals(currentPlayer)) {
             throw new IncorrectExecutorException();
         }
 
-        State gameState = game.getState();
         State newGameState = stateService.executeAction(action, gameState);
         game.setState(newGameState);
         repository.save(game);
@@ -138,8 +138,8 @@ public class GameService {
                                     boardConverter.convertToEntityAttribute("_,X,_,X,_,X,_,X"),
                                     true
                             ),
-                            true,
-                            false),
+                            false
+                    ),
                     new Game(
                             playerService.searchByID(3L),
                             playerService.searchByID(2L),
@@ -147,7 +147,6 @@ public class GameService {
                                     boardConverter.convertToEntityAttribute("_,Oo,_,O,_,O,_,O"),
                                     true
                             ),
-                            true,
                             false),
                     new Game(
                             playerService.searchByID(1L),
@@ -156,7 +155,6 @@ public class GameService {
                                     boardConverter.convertToEntityAttribute("_,X,_,X,_,Xx,_,X"),
                                     true
                             ),
-                            true,
                             false)
             ));
         }

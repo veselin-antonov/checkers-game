@@ -1,4 +1,4 @@
-package bg.reachup.edu.data.dtos;
+package bg.reachup.edu.presentation.dtos;
 
 public record PlayerDTO(
         String username,

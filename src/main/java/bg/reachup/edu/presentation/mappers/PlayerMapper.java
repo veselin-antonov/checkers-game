@@ -1,6 +1,6 @@
-package bg.reachup.edu.data.mappers;
+package bg.reachup.edu.presentation.mappers;
 
-import bg.reachup.edu.data.dtos.PlayerDTO;
+import bg.reachup.edu.presentation.dtos.PlayerDTO;
 import bg.reachup.edu.data.entities.Player;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -14,5 +14,6 @@ public interface PlayerMapper {
     List<PlayerDTO> toDTOs(Iterable<Player> entities);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "gamesPlayed", ignore = true)
     Player toEntity(PlayerDTO dto);
 }

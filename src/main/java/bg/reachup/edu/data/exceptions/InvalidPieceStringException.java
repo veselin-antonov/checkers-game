@@ -1,7 +1,7 @@
-package bg.reachup.edu.buisness.exceptions;
+package bg.reachup.edu.data.exceptions;
 
 public class InvalidPieceStringException extends RuntimeException {
-    private String symbol;
+    private final String symbol;
 
     public InvalidPieceStringException(String symbol) {
         this.symbol = symbol;

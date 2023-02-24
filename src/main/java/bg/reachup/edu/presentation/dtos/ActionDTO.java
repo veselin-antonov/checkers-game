@@ -1,6 +1,6 @@
-package bg.reachup.edu.data.dtos;
+package bg.reachup.edu.presentation.dtos;
 
-import bg.reachup.edu.buisness.Coordinates;
+import bg.reachup.edu.data.entities.Coordinates;
 
 public record ActionDTO (
         String actionType,

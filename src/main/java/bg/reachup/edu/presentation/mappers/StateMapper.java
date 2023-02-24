@@ -1,7 +1,7 @@
-package bg.reachup.edu.data.mappers;
+package bg.reachup.edu.presentation.mappers;
 
-import bg.reachup.edu.buisness.Board;
-import bg.reachup.edu.data.dtos.StateDTO;
+import bg.reachup.edu.data.entities.Board;
+import bg.reachup.edu.presentation.dtos.StateDTO;
 import bg.reachup.edu.data.entities.State;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

@@ -1,9 +1,9 @@
 package bg.reachup.edu.data.converters;
 
-import bg.reachup.edu.buisness.Board;
-import bg.reachup.edu.buisness.Piece;
-import bg.reachup.edu.buisness.exceptions.IllegalPiecePlacementException;
-import bg.reachup.edu.buisness.exceptions.InvalidPieceStringException;
+import bg.reachup.edu.data.entities.Board;
+import bg.reachup.edu.data.entities.Piece;
+import bg.reachup.edu.data.exceptions.IllegalPiecePlacementException;
+import bg.reachup.edu.data.exceptions.InvalidPieceStringException;
 import org.springframework.stereotype.Component;
 
 import javax.persistence.AttributeConverter;

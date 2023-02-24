@@ -1,7 +1,5 @@
 package bg.reachup.edu.data.entities;
 
-import bg.reachup.edu.buisness.Board;
-import bg.reachup.edu.buisness.Piece;
 import bg.reachup.edu.data.converters.BoardConverter;
 
 import javax.annotation.PostConstruct;
@@ -18,7 +16,7 @@ public class State {
     private final List<Piece> whitePieces;
     @Transient
     private final List<Piece> blackPieces;
-    private boolean isPlayer1Turn;
+    private boolean player1Turn;
     @Transient
     private final int captureStreak;
     @Convert(converter = BoardConverter.class)
@@ -45,9 +43,9 @@ public class State {
         this.id = id;
     }
 
-    public State(Board board, boolean isPlayer1Turn, Piece attacker, int captureStreak) {
+    public State(Board board, boolean player1Turn, Piece attacker, int captureStreak) {
         this.board = board;
-        this.isPlayer1Turn = isPlayer1Turn;
+        this.player1Turn = player1Turn;
         this.whitePieces = new LinkedList<>();
         this.blackPieces = new LinkedList<>();
         this.captureStreak = captureStreak;
@@ -56,8 +54,8 @@ public class State {
         this.minStateScore = 0;
     }
 
-    public State(Board board, boolean isPlayer1Turn) {
-        this(board, isPlayer1Turn, null, 0);
+    public State(Board board, boolean player1Turn) {
+        this(board, player1Turn, null, 0);
     }
 
     @PostConstruct
@@ -76,11 +74,11 @@ public class State {
     }
 
     public boolean isPlayer1Turn() {
-        return isPlayer1Turn;
+        return player1Turn;
     }
 
     public void setPlayer1Turn(boolean player1Turn) {
-        isPlayer1Turn = player1Turn;
+        this.player1Turn = player1Turn;
     }
 
     public int getCaptureStreak() {

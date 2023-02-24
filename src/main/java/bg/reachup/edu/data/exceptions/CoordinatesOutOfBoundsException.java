@@ -1,4 +1,4 @@
-package bg.reachup.edu.buisness.exceptions;
+package bg.reachup.edu.data.exceptions;
 
 public class CoordinatesOutOfBoundsException extends RuntimeException{
     @Override

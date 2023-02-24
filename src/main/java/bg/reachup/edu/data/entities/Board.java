@@ -1,7 +1,6 @@
-package bg.reachup.edu.buisness;
+package bg.reachup.edu.data.entities;
 
-import bg.reachup.edu.buisness.exceptions.CoordinatesOutOfBoundsException;
-
+import bg.reachup.edu.data.exceptions.CoordinatesOutOfBoundsException;
 import java.util.List;
 import java.util.StringJoiner;
 
