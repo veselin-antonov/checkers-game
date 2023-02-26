@@ -1,6 +1,8 @@
 package bg.reachup.edu.data.entities;
 
 import bg.reachup.edu.data.exceptions.CoordinatesOutOfBoundsException;
+
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
@@ -150,5 +152,18 @@ public class Board {
             rowJoiner.add(pieceJoiner.toString());
         }
         return rowJoiner.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Board board1 = (Board) o;
+        return Arrays.deepEquals(board, board1.board);
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.deepHashCode(board);
     }
 }

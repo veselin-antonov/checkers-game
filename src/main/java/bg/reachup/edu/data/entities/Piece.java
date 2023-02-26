@@ -2,6 +2,8 @@ package bg.reachup.edu.data.entities;
 
 import bg.reachup.edu.data.exceptions.InvalidPieceStringException;
 
+import java.util.Objects;
+
 /**
  * A game piece used to play the game Checkers.
  * <p>Each piece is represented by its actionType, coordinates and if it's either a normal or a queen piece.</p>
@@ -156,5 +158,18 @@ public class Piece {
         } else {
             return isQueen ? "Oo" : "O";
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Piece piece = (Piece) o;
+        return isQueen == piece.isQueen && isWhite == piece.isWhite && Objects.equals(coordinates, piece.coordinates);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(isQueen, isWhite, coordinates);
     }
 }
