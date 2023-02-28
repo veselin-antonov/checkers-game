@@ -309,7 +309,7 @@ public class StateService {
             ).value2().get(0);
 
             //If the player can still capture, he stays on turn, otherwise -> the player on turn is switched
-            boolean canStillCapture = captureWithPiece(piece, newState, action.executor()).isEmpty();
+            boolean canStillCapture = !captureWithPiece(newState.getAttacker(), newState, action.executor()).isEmpty();
             newState.setPlayer1Turn(canStillCapture ? state.isPlayer1Turn() : !state.isPlayer1Turn());
         }
         return newState;

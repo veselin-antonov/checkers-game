@@ -7,10 +7,16 @@ import bg.reachup.edu.presentation.mappers.GameMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import javax.validation.Valid;
 import java.util.List;
 import java.util.Map;
+import java.util.StringJoiner;
 
 @Controller
 @RequestMapping("/games")
@@ -45,7 +51,7 @@ public class GameController {
 
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody GameDTO makeMove(@PathVariable("id") Long gameID, @RequestBody() ActionDTO actionDTO) {
+    public @ResponseBody GameDTO makeMove(@PathVariable("id") Long gameID, @Valid @RequestBody ActionDTO actionDTO) {
         return mapper.toDTO(service.makeMove(gameID, actionDTO));
     }
 }

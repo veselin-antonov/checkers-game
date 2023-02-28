@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Controller
@@ -36,7 +37,7 @@ public class PlayerController {
 
     @PostMapping("")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "Successfully registered new player")
-    public @ResponseBody PlayerDTO registerPlayer(@RequestBody PlayerDTO playerDTO) {
+    public @ResponseBody PlayerDTO registerPlayer(@Valid @RequestBody PlayerDTO playerDTO) {
         return mapper.toDTO(service.registerPlayer(mapper.toEntity(playerDTO)));
     }
 }

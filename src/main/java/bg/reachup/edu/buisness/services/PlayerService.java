@@ -1,15 +1,20 @@
 package bg.reachup.edu.buisness.services;
 
-import bg.reachup.edu.buisness.exceptions.players.*;
+import bg.reachup.edu.buisness.exceptions.players.NoSuchPlayerIDException;
+import bg.reachup.edu.buisness.exceptions.players.NoSuchUsernameFoundException;
+import bg.reachup.edu.buisness.exceptions.players.PlayerEmailAlreadyExistsException;
+import bg.reachup.edu.buisness.exceptions.players.PlayerUsernameAlreadyExistsException;
 import bg.reachup.edu.data.entities.Player;
 import bg.reachup.edu.data.repositories.PlayerRepository;
 import bg.reachup.edu.presentation.mappers.PlayerMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PlayerService {
@@ -31,16 +36,24 @@ public class PlayerService {
     }
 
     public Player registerPlayer(Player player) {
-        if(repository.exists(Example.of(player))) {
-            throw new PlayerAlreadyExistsException();
+        ExampleMatcher playerMatcher = ExampleMatcher
+                .matchingAny()
+                .withIgnoreNullValues()
+                .withIgnorePaths("gamesPlayed")
+                .withIgnorePaths("id")
+                .withStringMatcher(ExampleMatcher.StringMatcher.EXACT);
+        Example<Player> playerExample = Example.of(player, playerMatcher);
+        List<Player> playerOptional = repository.findAll(playerExample);
+        if(playerOptional.isEmpty()) {
+            player.setGamesPlayed(0);
+            return repository.save(player);
         }
-        if (player.getUsername() == null || player.getUsername().isBlank()) {
-            throw new MissingUsernameException();
+        Player existingPlayer = playerOptional.get(0);
+        if (existingPlayer.getUsername().equals(player.getUsername())) {
+            throw new PlayerUsernameAlreadyExistsException();
+        } else {
+            throw new PlayerEmailAlreadyExistsException();
         }
-        if (player.getEmail() == null || player.getEmail().isBlank()) {
-            throw new MissingEmailException();
-        }
-        return repository.save(player);
     }
 
     public Player searchByUsername(String player) {

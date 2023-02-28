@@ -5,8 +5,10 @@ package bg.reachup.edu.data.entities;
  * @param row - the first value of the coordinates
  * @param column - the second value of the coordinates
  */
-public record Coordinates(int row, int column) {
-
+public record Coordinates(
+        Integer row,
+        Integer column
+) {
     /**
      * Returns a new {@link Coordinates} instance with copy of these coordinates' fields.
      * @return new {@link Coordinates} instance with copy of these coordinates as fields
