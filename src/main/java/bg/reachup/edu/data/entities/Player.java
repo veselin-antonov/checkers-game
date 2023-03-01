@@ -1,6 +1,7 @@
 package bg.reachup.edu.data.entities;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "players")
@@ -64,6 +65,19 @@ public class Player {
 
     public void setGamesPlayed(Integer gamesPlayed) {
         this.gamesPlayed = gamesPlayed;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Player player = (Player) o;
+        return Objects.equals(id, player.id) && Objects.equals(username, player.username) && Objects.equals(email, player.email);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, username, email);
     }
 
     @Override

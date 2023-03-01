@@ -3,6 +3,7 @@ package bg.reachup.edu.data.entities;
 import org.hibernate.annotations.Cascade;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Table(name = "games")
@@ -32,8 +33,7 @@ public class Game {
     @ManyToOne
     @JoinColumn(name = "player2_id", referencedColumnName = "id")
     private Player player2;
-    @OneToOne
-    @Cascade(org.hibernate.annotations.CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "state_id", referencedColumnName = "id")
     private State state;
     private boolean isFinished;
@@ -64,6 +64,19 @@ public class Game {
 
     public boolean isFinished() {
         return isFinished;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Game game = (Game) o;
+        return isFinished == game.isFinished && Objects.equals(id, game.id) && Objects.equals(player1, game.player1) && Objects.equals(player2, game.player2) && Objects.equals(state, game.state);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, player1, player2, state, isFinished);
     }
 
     @Override

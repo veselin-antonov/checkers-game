@@ -1,6 +1,6 @@
 package bg.reachup.edu.presentation.mappers;
 
-import bg.reachup.edu.presentation.dtos.GameDTO;
+import bg.reachup.edu.presentation.dtos.GameGetDTO;
 import bg.reachup.edu.data.entities.Game;
 import bg.reachup.edu.data.entities.Player;
 import org.mapstruct.Mapper;
@@ -12,10 +12,10 @@ public interface GameMapper {
 
     @Mapping(source = "player1", target = "player1Username", qualifiedByName = "playerParser")
     @Mapping(source = "player2", target = "player2username", qualifiedByName = "playerParser")
-    GameDTO toDTO(Game entity);
+    GameGetDTO toDTO(Game entity);
 
     @Named("playerParser")
     default String parsePlayer(Player player) {
-        return player == null ? "null" : player.getUsername();
+        return player.getUsername();
     }
 }

@@ -16,7 +16,7 @@ import java.util.StringJoiner;
 public class ControllerAdvice {
     @ExceptionHandler(ConstraintViolationException.class)
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public String onConstraintViolationException(ConstraintViolationException e) {
+    public @ResponseBody String onConstraintViolationException(ConstraintViolationException e) {
         StringJoiner stringJoiner = new StringJoiner(System.lineSeparator());
         for (ConstraintViolation<?> constraintViolation : e.getConstraintViolations()) {
             stringJoiner.add(String.format(

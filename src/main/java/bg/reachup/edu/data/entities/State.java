@@ -15,11 +15,12 @@ public class State {
     private Long id;
     @Convert(converter = BoardConverter.class)
     private final Board board;
+    private boolean player1Turn;
+    private boolean isFinished;
     @Transient
     private final List<Piece> whitePieces;
     @Transient
     private final List<Piece> blackPieces;
-    private boolean player1Turn;
     @Transient
     private final Piece attacker;
     @Transient
@@ -72,12 +73,8 @@ public class State {
         this.id = id;
     }
 
-    public List<Piece> getWhitePieces() {
-        return whitePieces;
-    }
-
-    public List<Piece> getBlackPieces() {
-        return blackPieces;
+    public Board getBoard() {
+        return board;
     }
 
     public boolean isPlayer1Turn() {
@@ -88,12 +85,28 @@ public class State {
         this.player1Turn = player1Turn;
     }
 
-    public int getCaptureStreak() {
-        return captureStreak;
+    public boolean isFinished() {
+        return isFinished;
     }
 
-    public Board getBoard() {
-        return board;
+    public void setFinished(boolean finished) {
+        isFinished = finished;
+    }
+
+    public List<Piece> getWhitePieces() {
+        return whitePieces;
+    }
+
+    public List<Piece> getBlackPieces() {
+        return blackPieces;
+    }
+
+    public Piece getAttacker() {
+        return attacker;
+    }
+
+    public int getCaptureStreak() {
+        return captureStreak;
     }
 
     public Action getOriginAction() {
@@ -106,10 +119,6 @@ public class State {
 
     public void setChildren(List<State> children) {
         this.children = children;
-    }
-
-    public Piece getAttacker() {
-        return attacker;
     }
 
     public int getMaxStateScore() {
