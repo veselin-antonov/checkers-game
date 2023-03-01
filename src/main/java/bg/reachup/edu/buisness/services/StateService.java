@@ -5,6 +5,8 @@ import bg.reachup.edu.buisness.exceptions.state.IllegalActionException;
 import bg.reachup.edu.buisness.exceptions.state.NoPieceAtCoordinatesException;
 import bg.reachup.edu.buisness.exceptions.state.OpponentPieceException;
 import bg.reachup.edu.data.entities.*;
+import bg.reachup.edu.data.repositories.StateRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -13,6 +15,21 @@ import java.util.stream.Collectors;
 
 @Service
 public class StateService {
+    private final StateRepository repository;
+
+    @Autowired
+    public StateService(StateRepository repository) {
+        this.repository = repository;
+    }
+
+    public void updateState(State toUpdate, State newState) {
+        repository.findById(toUpdate.getId());
+        toUpdate.setBoard(newState.getBoard());
+        toUpdate.setPlayer1Turn(newState.isPlayer1Turn());
+        toUpdate.setFinished(newState.isFinished());
+        repository.save(toUpdate);
+    }
+
     public List<State> getChildren(State state, String executor) {
         List<State> children = state.getChildren();
         if (children != null) {

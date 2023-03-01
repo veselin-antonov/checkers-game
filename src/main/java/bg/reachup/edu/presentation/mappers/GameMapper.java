@@ -1,21 +1,24 @@
 package bg.reachup.edu.presentation.mappers;
 
-import bg.reachup.edu.presentation.dtos.GameGetDTO;
 import bg.reachup.edu.data.entities.Game;
-import bg.reachup.edu.data.entities.Player;
+import bg.reachup.edu.presentation.dtos.GameGetDTO;
+import bg.reachup.edu.presentation.dtos.StateDTO;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
-@Mapper(componentModel = "spring", uses = StateMapper.class)
+import java.util.Arrays;
+
+@Mapper(componentModel = "spring")
 public interface GameMapper {
 
-    @Mapping(source = "player1", target = "player1Username", qualifiedByName = "playerParser")
-    @Mapping(source = "player2", target = "player2username", qualifiedByName = "playerParser")
-    GameGetDTO toDTO(Game entity);
-
-    @Named("playerParser")
-    default String parsePlayer(Player player) {
-        return player.getUsername();
+    default GameGetDTO toDTO(Game entity) {
+        return new GameGetDTO(
+                entity.getPlayer1().getUsername(),
+                entity.getPlayer2().getUsername(),
+                new StateDTO(
+                        Arrays.asList(entity.getState().getBoard().toString().split("\n")),
+                        (entity.getState().isPlayer1Turn() ? entity.getPlayer1() : entity.getPlayer2()).getUsername(),
+                        entity.getState().isFinished()
+                )
+        );
     }
 }

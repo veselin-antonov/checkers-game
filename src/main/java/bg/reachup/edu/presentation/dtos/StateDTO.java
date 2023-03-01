@@ -4,7 +4,7 @@ import java.util.List;
 
 public record StateDTO(
         List<String> board,
-        boolean player1Turn,
-        boolean isFinished
+        String currentPlayer,
+        boolean finished
 ) {
 }

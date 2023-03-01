@@ -1,6 +1,9 @@
 package bg.reachup.edu.presentation.dtos;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
+import javax.validation.constraints.Pattern;
 
 public record PlayerDTO(
         @NotNull(message = "Missing player username!")
@@ -9,7 +12,11 @@ public record PlayerDTO(
         @NotNull(message = "Missing player email!")
         @Email(message = "Invalid player email!")
         String email,
-        @Null(message = "Cannot alter player game count!")
-        Integer gamesPlayed
+        @Null(message = "Cannot alter player game statistics!")
+        Integer wins,
+        @Null(message = "Cannot alter player game statistics!")
+        Integer losses,
+        @Null(message = "Cannot alter player game statistics!")
+        Integer ties
 ) {
 }

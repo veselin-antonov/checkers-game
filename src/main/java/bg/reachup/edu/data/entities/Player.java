@@ -1,5 +1,9 @@
 package bg.reachup.edu.data.entities;
 
+import org.hibernate.annotations.ColumnDefault;
+import org.hibernate.annotations.Generated;
+import org.hibernate.annotations.GenerationTime;
+
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -10,10 +14,9 @@ public class Player {
     public Player() {
     }
 
-    public Player(String username, String email, Integer gamesPlayed) {
+    public Player(String username, String email) {
         this.username = username;
         this.email = email;
-        this.gamesPlayed = gamesPlayed;
     }
 
     @Id
@@ -33,7 +36,15 @@ public class Player {
             unique = true
     )
     private String email;
-    private Integer gamesPlayed;
+    @ColumnDefault("0")
+    @Generated(GenerationTime.INSERT)
+    private Integer wins;
+    @ColumnDefault("0")
+    @Generated(GenerationTime.INSERT)
+    private Integer losses;
+    @ColumnDefault("0")
+    @Generated(GenerationTime.INSERT)
+    private Integer ties;
 
     public Long getId() {
         return id;
@@ -59,12 +70,40 @@ public class Player {
         this.email = email;
     }
 
-    public Integer getGamesPlayed() {
-        return gamesPlayed;
+    public Integer getWins() {
+        return wins;
     }
 
-    public void setGamesPlayed(Integer gamesPlayed) {
-        this.gamesPlayed = gamesPlayed;
+    public void giveWin() {
+        wins++;
+    }
+
+    public void setWins(Integer gamesWon) {
+        this.wins = gamesWon;
+    }
+
+    public Integer getLosses() {
+        return losses;
+    }
+
+    public void giveLoss() {
+        losses++;
+    }
+
+    public void setLosses(Integer gamesLost) {
+        this.losses = gamesLost;
+    }
+
+    public Integer getTies() {
+        return ties;
+    }
+
+    public void giveTie() {
+        ties++;
+    }
+
+    public void setTies(Integer gamesTied) {
+        this.ties = gamesTied;
     }
 
     @Override
@@ -86,7 +125,9 @@ public class Player {
                 "id=" + id +
                 ", username='" + username + '\'' +
                 ", email='" + email + '\'' +
-                ", gamesPlayed=" + gamesPlayed +
+                ", gamesWon=" + wins +
+                ", gamesLost=" + losses +
+                ", gamesTied=" + ties +
                 '}';
     }
 }

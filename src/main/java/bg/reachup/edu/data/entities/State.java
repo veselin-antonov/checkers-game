@@ -14,7 +14,7 @@ public class State {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Convert(converter = BoardConverter.class)
-    private final Board board;
+    private Board board;
     private boolean player1Turn;
     private boolean isFinished;
     @Transient
@@ -44,6 +44,9 @@ public class State {
         this.originAction = originAction;
         this.maxStateScore = 0;
         this.minStateScore = 0;
+        if (board != null) {
+            init();
+        }
     }
 
     public State(Board board, boolean player1Turn, Action action) {
@@ -58,7 +61,6 @@ public class State {
         this(null, false, null, 0, null);
     }
 
-    @PostConstruct
     private void init() {
         board.getPieces(whitePieces, blackPieces);
         this.maxStateScore = whitePieces.size() * Piece.QUEEN_PIECE_VALUE + 1;
@@ -75,6 +77,13 @@ public class State {
 
     public Board getBoard() {
         return board;
+    }
+
+    public void setBoard(Board board) {
+        this.board = board;
+        if (board != null) {
+            init();
+        }
     }
 
     public boolean isPlayer1Turn() {

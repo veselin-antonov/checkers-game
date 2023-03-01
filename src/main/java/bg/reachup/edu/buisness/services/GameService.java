@@ -120,7 +120,21 @@ public class GameService {
         }
 
         State newGameState = stateService.executeAction(action, gameState);
-        game.setState(newGameState);
+        if (stateService.isFinal(newGameState)) {
+            int gameEvaluation = stateService.evaluate(newGameState);
+            if (gameEvaluation > 0) {
+                game.getPlayer1().giveWin();
+                game.getPlayer2().giveLoss();
+            } else if (gameEvaluation < 0) {
+                game.getPlayer1().giveLoss();
+                game.getPlayer2().giveWin();
+            } else {
+                game.getPlayer1().giveTie();
+                game.getPlayer2().giveTie();
+            }
+            newGameState.setFinished(true);
+        }
+        stateService.updateState(gameState, newGameState);
         repository.save(game);
         LoggerFactory.getLogger(Game.class).info("%n%s%n".formatted(action));
         LoggerFactory.getLogger(GameService.class).info("%n-------------------%n%s%n-------------------".formatted(game));

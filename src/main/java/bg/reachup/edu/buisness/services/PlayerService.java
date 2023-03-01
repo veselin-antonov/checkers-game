@@ -37,14 +37,11 @@ public class PlayerService {
     public Player registerPlayer(Player player) {
         ExampleMatcher playerMatcher = ExampleMatcher
                 .matchingAny()
-                .withIgnoreNullValues()
-                .withIgnorePaths("gamesPlayed")
-                .withIgnorePaths("id")
+                .withIgnorePaths("gamesWon", "gamesLost", "gamesWon")
                 .withStringMatcher(ExampleMatcher.StringMatcher.EXACT);
         Example<Player> playerExample = Example.of(player, playerMatcher);
         List<Player> playerOptional = repository.findAll(playerExample);
         if(playerOptional.isEmpty()) {
-            player.setGamesPlayed(0);
             return repository.save(player);
         }
         Player existingPlayer = playerOptional.get(0);
@@ -65,18 +62,15 @@ public class PlayerService {
             repository.saveAll(List.of(
                             new Player(
                                     "Ivancho_07",
-                                    "ivan@example.com",
-                                    10
+                                    "ivan@example.com"
                             ),
                             new Player(
                                     "xX_Gosho_Xx",
-                                    "gosho@example.com",
-                                    7
+                                    "gosho@example.com"
                             ),
                             new Player(
                                     "Petar4o",
-                                    "pesho_1997@example.com",
-                                    81
+                                    "pesho_1997@example.com"
                             )
                     )
             );

@@ -14,6 +14,8 @@ public interface PlayerMapper {
     List<PlayerDTO> toDTOs(Iterable<Player> entities);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "gamesPlayed", ignore = true)
+    @Mapping(target = "wins", ignore = true)
+    @Mapping(target = "losses", ignore = true)
+    @Mapping(target = "ties", ignore = true)
     Player toEntity(PlayerDTO dto);
 }
