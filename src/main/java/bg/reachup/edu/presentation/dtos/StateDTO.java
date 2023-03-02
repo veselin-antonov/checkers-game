@@ -5,6 +5,6 @@ import java.util.List;
 public record StateDTO(
         List<String> board,
         String currentPlayer,
-        boolean finished
+        boolean finished 
 ) {
 }

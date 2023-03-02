@@ -2,7 +2,6 @@ package bg.reachup.edu.data.entities;
 
 import bg.reachup.edu.data.converters.BoardConverter;
 
-import javax.annotation.PostConstruct;
 import javax.persistence.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,7 +15,7 @@ public class State {
     @Convert(converter = BoardConverter.class)
     private Board board;
     private boolean player1Turn;
-    private boolean isFinished;
+    private boolean finished;
     @Transient
     private final List<Piece> whitePieces;
     @Transient
@@ -95,11 +94,11 @@ public class State {
     }
 
     public boolean isFinished() {
-        return isFinished;
+        return finished;
     }
 
     public void setFinished(boolean finished) {
-        isFinished = finished;
+        this.finished = finished;
     }
 
     public List<Piece> getWhitePieces() {

@@ -1,15 +1,12 @@
 package bg.reachup.edu.buisness.services;
 
-import bg.reachup.edu.data.entities.Action;
+import bg.reachup.edu.buisness.Pair;
 import bg.reachup.edu.buisness.exceptions.game.DuplicateUnfinishedGameException;
 import bg.reachup.edu.buisness.exceptions.game.GameAlreadyCompletedException;
 import bg.reachup.edu.buisness.exceptions.game.IncorrectExecutorException;
 import bg.reachup.edu.buisness.exceptions.game.NoSuchGameIDException;
 import bg.reachup.edu.data.converters.BoardConverter;
-import bg.reachup.edu.data.entities.Board;
-import bg.reachup.edu.data.entities.Game;
-import bg.reachup.edu.data.entities.Player;
-import bg.reachup.edu.data.entities.State;
+import bg.reachup.edu.data.entities.*;
 import bg.reachup.edu.data.repositories.GameRepository;
 import bg.reachup.edu.presentation.dtos.ActionDTO;
 import bg.reachup.edu.presentation.mappers.ActionMapper;
@@ -52,35 +49,40 @@ public class GameService {
         return game;
     }
 
-    public Game createNewGame(String player1Username, String player2Username) {
-        Player player1 = playerService.searchByUsername(player1Username);
-        Player player2 = playerService.searchByUsername(player2Username);
+    public Game createNewGame(Game game) {
+        Player player1 = playerService.searchByUsername(game.getPlayer1().getUsername());
+        Player player2 = null;
 
-        ExampleMatcher ignoringMatcher = ExampleMatcher
-                .matchingAll()
-                .withIgnorePaths("isPlayer1Turn");
+        if (game.getMode() == GameMode.MULTIPLAYER) {
+            player2 = playerService.searchByUsername(game.getPlayer2().getUsername());
 
-        Example<Game> example1 = Example.of(
-                new Game(
-                        player1,
-                        player2,
-                        null,
-                        false
-                ),
-                ignoringMatcher);
+            ExampleMatcher ignoringMatcher = ExampleMatcher
+                    .matchingAll()
+                    .withIgnorePaths("isPlayer1Turn");
 
-        Example<Game> example2 = Example.of(
-                new Game(
-                        player2,
-                        player1,
-                        null,
-                        false
-                ),
-                ignoringMatcher);
+            Example<Game> example1 = Example.of(
+                    new Game(
+                            null,
+                            player1,
+                            player2,
+                            null
+                    ),
+                    ignoringMatcher);
 
-        if (repository.exists(example1) || repository.exists(example2)) {
-            throw new DuplicateUnfinishedGameException();
+            Example<Game> example2 = Example.of(
+                    new Game(
+                            null,
+                            player2,
+                            player1,
+                            null
+                    ),
+                    ignoringMatcher);
+
+            if (repository.exists(example1) || repository.exists(example2)) {
+                throw new DuplicateUnfinishedGameException();
+            }
         }
+
         Board board = boardConverter.convertToEntityAttribute(
                 """
                         _,O,_,O,_,O,_,O
@@ -94,11 +96,13 @@ public class GameService {
                         """
         );
         State state = new State(board, true);
+        game.setState(state);
         return repository.save(new Game(
+                        game.getMode(),
+                        game.getDifficulty(),
                         player1,
                         player2,
-                        state,
-                        false
+                        state
                 )
         );
     }
@@ -106,7 +110,7 @@ public class GameService {
     public Game makeMove(Long gameID, ActionDTO actionDTO) {
         Game game = repository.findById(gameID).orElseThrow(NoSuchGameIDException::new);
 
-        if (game.isFinished()) {
+        if (game.getState().isFinished()) {
             throw new GameAlreadyCompletedException();
         }
 
@@ -135,10 +139,70 @@ public class GameService {
             newGameState.setFinished(true);
         }
         stateService.updateState(gameState, newGameState);
+
+        if (
+                game.getMode() == GameMode.SINGLEPLAYER
+                        && !game.getState().isPlayer1Turn()
+                        && !game.getState().isFinished()
+        ) {
+            State afterBotMoves = findBestMove(newGameState, game.getDifficulty().value()).value1();
+            stateService.updateState(gameState, afterBotMoves);
+
+        }
+
         repository.save(game);
+
         LoggerFactory.getLogger(Game.class).info("%n%s%n".formatted(action));
         LoggerFactory.getLogger(GameService.class).info("%n-------------------%n%s%n-------------------".formatted(game));
         return game;
+    }
+
+
+    public Pair<State, Integer> findBestMove(State state, int depth) {
+        return minMaxAB(state, depth, state.getMinStateScore(), state.getMaxStateScore());
+    }
+
+    private Pair<State, Integer> minMaxAB(State state, int depth, int alpha, int beta) {
+        if (stateService.isFinal(state)) {
+            return new Pair<>(state, stateService.evaluate(state));
+        }
+        if (depth == 0) {
+            return new Pair<>(state, stateService.evaluate(state));
+        }
+        List<State> children = stateService.getChildren(state, null);
+        State firstChild = children.get(0);
+        Pair<State, Integer> bestChoice = new Pair<>(
+                firstChild,
+                minMaxAB(firstChild, depth - 1, alpha, beta).value2()
+        );
+        for (int i = 0; i < children.size(); i++) {
+            State child = children.get(i);
+            Pair<State, Integer> possibleBestChoice = new Pair<>(
+                    child,
+                    minMaxAB(child, depth - 1, alpha, beta).value2()
+            );
+            bestChoice = betterChoice(bestChoice, possibleBestChoice, state.isPlayer1Turn()) ?
+                    bestChoice : possibleBestChoice;
+            if (state.isPlayer1Turn()) {
+                alpha = Math.max(alpha, bestChoice.value2());
+            } else {
+                beta = Math.min(beta, bestChoice.value2());
+            }
+            if (alpha >= beta) {
+                break;
+            }
+        }
+        return bestChoice;
+    }
+
+    private boolean betterChoice(Pair<State, Integer> choice1, Pair<State, Integer> choice2, boolean isMaximisingPlayersTurn) {
+        if (choice1 == null) {
+            return false;
+        } else if (isMaximisingPlayersTurn) {
+            return choice1.value2() > choice2.value2();
+        } else {
+            return choice1.value2() < choice2.value2();
+        }
     }
 
     @PostConstruct
@@ -146,30 +210,32 @@ public class GameService {
         if (repository.count() == 0) {
             repository.saveAll(List.of(
                     new Game(
+                            GameMode.MULTIPLAYER,
                             playerService.searchByID(1L),
                             playerService.searchByID(2L),
                             new State(
                                     boardConverter.convertToEntityAttribute("_,X,_,X,_,X,_,X"),
                                     true
-                            ),
-                            false
+                            )
                     ),
                     new Game(
+                            GameMode.MULTIPLAYER,
                             playerService.searchByID(3L),
                             playerService.searchByID(2L),
                             new State(
                                     boardConverter.convertToEntityAttribute("_,Oo,_,O,_,O,_,O"),
                                     true
-                            ),
-                            false),
+                            )
+                    ),
                     new Game(
+                            GameMode.SINGLEPLAYER,
+                            Difficulty.NORMAL,
                             playerService.searchByID(1L),
-                            playerService.searchByID(3L),
                             new State(
                                     boardConverter.convertToEntityAttribute("_,X,_,X,_,Xx,_,X"),
                                     true
-                            ),
-                            false)
+                            )
+                    )
             ));
         }
     }

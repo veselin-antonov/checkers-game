@@ -1,7 +1,5 @@
 package bg.reachup.edu.data.entities;
 
-import org.hibernate.annotations.Cascade;
-
 import javax.persistence.*;
 import java.util.Objects;
 
@@ -12,23 +10,33 @@ public class Game {
     public Game() {
     }
 
-    public Game(
-            Player player1,
-            Player player2,
-            State state,
-            boolean isFinished
-    ) {
+    public Game(GameMode mode, Difficulty difficulty, Player player1, Player player2, State state) {
+        this.mode = mode;
+        this.difficulty = difficulty;
         this.player1 = player1;
         this.player2 = player2;
         this.state = state;
-        this.isFinished = isFinished;
+    }
+
+    public Game(GameMode mode, Player player1, Player player2, State state) {
+        this.mode = mode;
+        this.player1 = player1;
+        this.player2 = player2;
+        this.state = state;
+    }
+
+    public Game(GameMode mode, Difficulty difficulty, Player player1, State state) {
+        this.mode = mode;
+        this.difficulty = difficulty;
+        this.player1 = player1;
+        this.state = state;
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @ManyToOne
-    @JoinColumn(name = "player1_id", referencedColumnName = "id")
+    @JoinColumn(name = "player1_id", referencedColumnName = "id", nullable = false)
     private Player player1;
     @ManyToOne
     @JoinColumn(name = "player2_id", referencedColumnName = "id")
@@ -36,7 +44,9 @@ public class Game {
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "state_id", referencedColumnName = "id")
     private State state;
-    private boolean isFinished;
+    @Column(nullable = false)
+    private GameMode mode;
+    private Difficulty difficulty;
 
     public Long getId() {
         return id;
@@ -50,8 +60,16 @@ public class Game {
         return player1;
     }
 
+    public void setPlayer1(Player player1) {
+        this.player1 = player1;
+    }
+
     public Player getPlayer2() {
-        return player2;
+        return mode == GameMode.SINGLEPLAYER ? new Player("Bot", null) : player2;
+    }
+
+    public void setPlayer2(Player player2) {
+        this.player2 = player2;
     }
 
     public State getState() {
@@ -62,8 +80,20 @@ public class Game {
         this.state = state;
     }
 
-    public boolean isFinished() {
-        return isFinished;
+    public GameMode getMode() {
+        return mode;
+    }
+
+    public void setMode(GameMode gameMode) {
+        this.mode = gameMode;
+    }
+
+    public Difficulty getDifficulty() {
+        return difficulty;
+    }
+
+    public void setDifficulty(Difficulty difficulty) {
+        this.difficulty = difficulty;
     }
 
     @Override
@@ -71,12 +101,12 @@ public class Game {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Game game = (Game) o;
-        return isFinished == game.isFinished && Objects.equals(id, game.id) && Objects.equals(player1, game.player1) && Objects.equals(player2, game.player2) && Objects.equals(state, game.state);
+        return Objects.equals(id, game.id) && Objects.equals(player1, game.player1) && Objects.equals(player2, game.player2) && Objects.equals(state, game.state);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, player1, player2, state, isFinished);
+        return Objects.hash(id, player1, player2, state);
     }
 
     @Override
@@ -85,8 +115,8 @@ public class Game {
                 state.toString(),
                 id,
                 player1.getUsername(),
-                player2.getUsername(),
-                state.isPlayer1Turn() ? player1.getUsername() : player2.getUsername()
+                player2 == null ? "Bot" : player2.getUsername(),
+                state.isPlayer1Turn() ? player1.getUsername() : player2 == null ? "Bot" : player2.getUsername()
         );
     }
 }

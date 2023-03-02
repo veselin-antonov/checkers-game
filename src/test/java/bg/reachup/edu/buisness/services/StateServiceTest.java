@@ -3,14 +3,17 @@ package bg.reachup.edu.buisness.services;
 import bg.reachup.edu.buisness.exceptions.state.IllegalActionException;
 import bg.reachup.edu.data.converters.BoardConverter;
 import bg.reachup.edu.data.entities.*;
+import bg.reachup.edu.data.repositories.MockStateRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 class StateServiceTest {
 
+    private final StateService stateService = new StateService(new MockStateRepository());
+    private final BoardConverter boardConverter = new BoardConverter();
+
     @Test
     void test1() {
-        BoardConverter boardConverter = new BoardConverter();
         Board board = boardConverter.convertToEntityAttribute(
                 """
                         _,_,_,_
@@ -23,7 +26,6 @@ class StateServiceTest {
                 board,
                 true
         );
-        StateService stateService = new StateService();
 
         Action[] actions = new Action[]{
                 new Action(ActionType.MOVE, Direction.UP_LEFT, new Coordinates(2, 1), "TestUser"),
@@ -80,7 +82,6 @@ class StateServiceTest {
 
     @Test
     void test2() {
-        BoardConverter boardConverter = new BoardConverter();
         Board board = boardConverter.convertToEntityAttribute(
                 """
                         _,_,_,_
@@ -93,7 +94,6 @@ class StateServiceTest {
                 board,
                 true
         );
-        StateService stateService = new StateService();
 
         Action[] actions = new Action[]{
                 new Action(ActionType.MOVE, Direction.UP_LEFT, new Coordinates(2, 1), "TestUser"),
@@ -177,7 +177,6 @@ class StateServiceTest {
 
     @Test
     void test3() {
-        BoardConverter boardConverter = new BoardConverter();
         Board board = boardConverter.convertToEntityAttribute(
                 """
                         _,_,_,_,_,_
@@ -192,7 +191,6 @@ class StateServiceTest {
                 board,
                 true
         );
-        StateService stateService = new StateService();
 
         Action[] actions = new Action[]{
                 new Action(ActionType.CAPTURE, Direction.UP_LEFT, new Coordinates(3, 2), "TestUser"),
@@ -234,7 +232,6 @@ class StateServiceTest {
 
     @Test
     void test4() {
-        BoardConverter boardConverter = new BoardConverter();
         Board board = boardConverter.convertToEntityAttribute(
                 """
                         _,_,_,_,_,_
@@ -249,7 +246,6 @@ class StateServiceTest {
                 board,
                 true
         );
-        StateService stateService = new StateService();
 
         Coordinates piecePosition = new Coordinates(3, 2);
         Action[] actions = {
@@ -311,7 +307,6 @@ class StateServiceTest {
 
     @Test
     void test5() {
-        BoardConverter boardConverter = new BoardConverter();
         Board board = boardConverter.convertToEntityAttribute(
                 """
                         _,_,_,_,_,_,_,_
@@ -328,7 +323,6 @@ class StateServiceTest {
                 board,
                 true
         );
-        StateService stateService = new StateService();
 
         Coordinates piecePosition = new Coordinates(5, 2);
         Action[] actions = {
@@ -372,7 +366,6 @@ class StateServiceTest {
 
     @Test
     void test6() {
-        BoardConverter boardConverter = new BoardConverter();
         Board board = boardConverter.convertToEntityAttribute(
                 """
                         _,_,_,_,_,_,_,_,_,_
@@ -391,7 +384,6 @@ class StateServiceTest {
                 board,
                 true
         );
-        StateService stateService = new StateService();
 
         Coordinates piecePosition = new Coordinates(7, 4);
         Action[] actions = {
@@ -461,7 +453,6 @@ class StateServiceTest {
 
     @Test
     void test7() {
-        BoardConverter boardConverter = new BoardConverter();
         Board board = boardConverter.convertToEntityAttribute(
                 """
                         _,_,_,_,_,_,_,_,_,_
@@ -480,7 +471,6 @@ class StateServiceTest {
                 board,
                 true
         );
-        StateService stateService = new StateService();
 
         Coordinates piecePosition = new Coordinates(7, 4);
         Action[] actions = {

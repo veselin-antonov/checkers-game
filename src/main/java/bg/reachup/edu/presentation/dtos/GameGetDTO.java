@@ -1,15 +1,12 @@
 package bg.reachup.edu.presentation.dtos;
 
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public record GameGetDTO(
-        @NotNull
-        @Pattern(regexp = "[a-zA-Z1-9_]{6,18}", message = "Invalid player username!")
-        String player1Username,
-        @Pattern(regexp = "[a-zA-Z1-9_]{6,18}", message = "Invalid player username!")
-        String player2username,
-        @Valid
+        String mode,
+        String player1,
+        String player2,
+        String difficulty,
         StateDTO state
 ) {}

@@ -11,7 +11,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import java.util.List;
@@ -33,7 +32,7 @@ public class GameController {
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     public @ResponseBody List<GameGetDTO> getAllGames() {
-        return service.getAll().stream().map(mapper::toDTO).toList();
+        return service.getAll().stream().map(mapper::toGetDTO).toList();
     }
 
     @GetMapping("/{id}")
@@ -44,18 +43,18 @@ public class GameController {
             @PathVariable("id")
             String id
     ) {
-        return mapper.toDTO(service.getByID(Long.parseLong(id)));
+        return mapper.toGetDTO(service.getByID(Long.parseLong(id)));
     }
 
     @PostMapping("")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "New game was created successfully")
-    public @ResponseBody GameGetDTO createNewGame(@RequestBody GamePostDTO playerUsernames) {
-        return mapper.toDTO(service.createNewGame(playerUsernames.player1(), playerUsernames.player2()));
+    public @ResponseBody GamePostDTO createNewGame(@RequestBody @Valid GamePostDTO gamePostDTO) {
+        return mapper.toPostDTO(service.createNewGame(mapper.toEntity(gamePostDTO)));
     }
 
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody GameGetDTO makeMove(
+    public @ResponseBody GamePostDTO makeMove(
 
             @Pattern(regexp = "\\d+", message = "Invalid game ID!")
             @PathVariable("id")
@@ -66,6 +65,6 @@ public class GameController {
             @RequestBody
             ActionDTO actionDTO
     ) {
-        return mapper.toDTO(service.makeMove(Long.parseLong(gameID), actionDTO));
+        return mapper.toPostDTO(service.makeMove(Long.parseLong(gameID), actionDTO));
     }
 }
