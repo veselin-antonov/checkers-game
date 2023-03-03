@@ -332,10 +332,70 @@ public class StateService {
         return newState;
     }
 
+    // Finds the best possible state, deriving from the specified one looking {depth} moves ahead
+    public State findBestMove(State state, int depth) {
+        return minMaxAB(state, depth, state.getMinStateScore(), state.getMaxStateScore()).value1();
+    }
+
+    /*
+     * This method implements the Min-Max algorithm with Alpha-Beta pruning in order
+     * to find the best possible state, that is a direct child of the specified one
+     *
+     * The algorithm calls itself recursively, while switching the player perspective. The algorithm generates a tree-like structure, and because
+     * of its exponential growth it is depth limited. It works bottom-up, meaning the tree of children is generated to the specific depth, and then
+     * the best score from the current player's perspective is selected. At the end, the best reachable score after {depth} moves is generated and
+     * the one best for the current perspective is returned by the method.
+     * */
+    private Pair<State, Integer> minMaxAB(State state, int depth, int alpha, int beta) {
+        if (isFinal(state)) {
+            return new Pair<>(state, evaluate(state));
+        }
+        if (depth == 0) {
+            return new Pair<>(state, evaluate(state));
+        }
+        List<State> children = getChildren(state, null);
+        State firstChild = children.get(0);
+        Pair<State, Integer> bestChoice = new Pair<>(
+                firstChild,
+                minMaxAB(firstChild, depth - 1, alpha, beta).value2()
+        );
+        for (int i = 0; i < children.size(); i++) {
+            State child = children.get(i);
+            Pair<State, Integer> possibleBestChoice = new Pair<>(
+                    child,
+                    minMaxAB(child, depth - 1, alpha, beta).value2()
+            );
+            bestChoice = betterChoice(bestChoice, possibleBestChoice, state.isPlayer1Turn());
+            if (state.isPlayer1Turn()) {
+                alpha = Math.max(alpha, bestChoice.value2());
+            } else {
+                beta = Math.min(beta, bestChoice.value2());
+            }
+            if (alpha >= beta) {
+                break;
+            }
+        }
+        return bestChoice;
+    }
+
+    // Returns the better of two states, according to the specified player's perspective
+    private Pair<State, Integer> betterChoice(Pair<State, Integer> choice1, Pair<State, Integer> choice2, boolean isMaximisingPlayersTurn) {
+        if (isMaximisingPlayersTurn) {
+            return choice1.value2() >= choice2.value2() ? choice1 : choice2;
+        } else {
+            return choice1.value2() <= choice2.value2() ? choice1 : choice2;
+        }
+    }
+
+    //Calculates the score for given list of pieces, by summing the values of all the pieces
     private int getPiecesScore(List<Piece> pieces) {
         return pieces.stream().mapToInt(Piece::getValue).sum();
     }
 
+    /*
+     * Evaluates a state using "zero-sum" - the score the first player has, the second loses.
+     * It is calculated by the difference of the values of the two players' pieces.
+     */
     public int evaluate(State state) {
         return getPiecesScore(state.getWhitePieces()) - getPiecesScore(state.getBlackPieces());
     }
