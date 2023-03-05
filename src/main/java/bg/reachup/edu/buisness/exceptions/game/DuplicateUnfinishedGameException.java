@@ -1,8 +1,10 @@
 package bg.reachup.edu.buisness.exceptions.game;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Unfinished game between these two players already exists")
-public class DuplicateUnfinishedGameException extends RuntimeException {
+public class DuplicateUnfinishedGameException extends ResponseStatusException {
+    public DuplicateUnfinishedGameException() {
+        super(HttpStatus.BAD_REQUEST, "Unfinished game between these two players already exists");
+    }
 }

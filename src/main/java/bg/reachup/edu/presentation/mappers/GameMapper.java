@@ -11,6 +11,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface GameMapper {
@@ -19,6 +20,8 @@ public interface GameMapper {
     @Mapping(target = "player2", expression = "java(entity.getPlayer2() == null ? \"\" : entity.getPlayer2().getUsername())")
     @Mapping(target = "state", expression = "java(convertToStateDTO(entity.getState(), entity))")
     GameGetDTO toGetDTO(Game entity);
+
+    List<GameGetDTO> toGetDTOs(List<Game> entities);
 
     @Mapping(target = "player1", expression = "java(entity.getPlayer1().getUsername())")
     @Mapping(target = "player2", expression = "java(entity.getPlayer2() == null ? \"\" : entity.getPlayer2().getUsername())")

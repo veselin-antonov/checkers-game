@@ -1,8 +1,10 @@
 package bg.reachup.edu.buisness.exceptions.players;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Player with such username was not found")
-public class NoSuchUsernameFoundException extends RuntimeException{
+public class NoSuchUsernameFoundException extends ResponseStatusException {
+    public NoSuchUsernameFoundException() {
+        super(HttpStatus.NOT_FOUND, "Player with such username was not found");
+    }
 }

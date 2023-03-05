@@ -1,8 +1,11 @@
 package bg.reachup.edu.buisness.exceptions.game;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(value = HttpStatus.UNAUTHORIZED, reason = "Cannot play when it's the other player's turn")
-public class IncorrectExecutorException extends RuntimeException {
+
+public class IncorrectExecutorException extends ResponseStatusException {
+    public IncorrectExecutorException() {
+        super(HttpStatus.UNAUTHORIZED, "Cannot play when it's the other player's turn");
+    }
 }

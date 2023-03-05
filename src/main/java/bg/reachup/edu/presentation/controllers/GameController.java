@@ -4,6 +4,7 @@ import bg.reachup.edu.buisness.services.GameService;
 import bg.reachup.edu.presentation.dtos.ActionDTO;
 import bg.reachup.edu.presentation.dtos.GameGetDTO;
 import bg.reachup.edu.presentation.dtos.GamePostDTO;
+import bg.reachup.edu.presentation.dtos.PlayerDTO;
 import bg.reachup.edu.presentation.mappers.ActionMapper;
 import bg.reachup.edu.presentation.mappers.GameMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,24 +26,24 @@ public class GameController {
     private final GameMapper gameMapper;
     private final ActionMapper actionMapper;
 
+    @Autowired
     public GameController(GameService service, GameMapper gameMapper, ActionMapper actionMapper) {
         this.service = service;
         this.gameMapper = gameMapper;
         this.actionMapper = actionMapper;
     }
 
-    @Autowired
-
-
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody List<GameGetDTO> getAllGames() {
-        return service.getAll().stream().map(gameMapper::toGetDTO).toList();
+    @ResponseBody
+    public List<GameGetDTO> getAllGames() {
+        return gameMapper.toGetDTOs(service.getAll());
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody GameGetDTO getByID(
+    @ResponseBody
+    public GameGetDTO getByID(
 
             @Pattern(regexp = "\\d+", message = "Game id must be a positive integer!")
             @PathVariable("id")
@@ -53,14 +54,22 @@ public class GameController {
 
     @PostMapping("")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "New game was created successfully")
-    public @ResponseBody GamePostDTO createNewGame(@RequestBody @Valid GamePostDTO gamePostDTO) {
+    @ResponseBody
+    public GamePostDTO createNewGame(@RequestBody @Valid GamePostDTO gamePostDTO) {
         return gameMapper.toPostDTO(service.createNewGame(gameMapper.toEntity(gamePostDTO)));
+    }
+
+    @PostMapping("/{id}/players")
+    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseBody
+    public GamePostDTO joinGame(@PathVariable Long id, @RequestBody String player) {
+        return gameMapper.toPostDTO(service.joinGame(id, player));
     }
 
     @PostMapping("/{id}")
     @ResponseStatus(HttpStatus.CREATED)
-    public @ResponseBody GameGetDTO makeMove(
-
+    @ResponseBody
+    public GameGetDTO makeMove(
             @PathVariable("id")
             @Pattern(regexp = "\\d+", message = "Invalid game ID!")
             String gameID,

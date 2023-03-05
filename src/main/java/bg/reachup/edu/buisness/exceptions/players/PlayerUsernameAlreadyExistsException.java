@@ -1,7 +1,10 @@
 package bg.reachup.edu.buisness.exceptions.players;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(code= HttpStatus.CONFLICT, reason = "Player with such username already exists")
-public class PlayerUsernameAlreadyExistsException extends RuntimeException {}
+public class PlayerUsernameAlreadyExistsException extends ResponseStatusException {
+    public PlayerUsernameAlreadyExistsException() {
+        super(HttpStatus.CONFLICT, "Player with such username already exists");
+    }
+}

@@ -1,8 +1,10 @@
 package bg.reachup.edu.buisness.exceptions.state;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "You cannot move opponent pieces")
-public class OpponentPieceException extends RuntimeException {
+public class OpponentPieceException extends ResponseStatusException {
+    public OpponentPieceException() {
+        super(HttpStatus.BAD_REQUEST, "You cannot move opponent pieces");
+    }
 }

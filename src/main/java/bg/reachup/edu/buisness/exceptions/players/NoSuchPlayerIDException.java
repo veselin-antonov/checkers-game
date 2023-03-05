@@ -1,7 +1,10 @@
 package bg.reachup.edu.buisness.exceptions.players;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Player with such {id} was not found")
-public class NoSuchPlayerIDException extends RuntimeException {}
+public class NoSuchPlayerIDException extends ResponseStatusException {
+    public NoSuchPlayerIDException() {
+        super(HttpStatus.NOT_FOUND, "Player with such {id} was not found");
+    }
+}

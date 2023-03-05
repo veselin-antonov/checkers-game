@@ -1,8 +1,10 @@
 package bg.reachup.edu.buisness.exceptions.game;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Game with such {id} was not found")
-public class NoSuchGameIDException extends RuntimeException {
+public class NoSuchGameIDException extends ResponseStatusException {
+    public NoSuchGameIDException() {
+        super(HttpStatus.UNAUTHORIZED, "Cannot play when it's the other player's turn");
+    }
 }

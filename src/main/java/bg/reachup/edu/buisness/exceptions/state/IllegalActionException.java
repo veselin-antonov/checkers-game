@@ -1,7 +1,10 @@
 package bg.reachup.edu.buisness.exceptions.state;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.server.ResponseStatusException;
 
-@ResponseStatus(value = HttpStatus.BAD_REQUEST, reason = "Illegal action")
-public class IllegalActionException extends RuntimeException {}
+public class IllegalActionException extends ResponseStatusException {
+    public IllegalActionException() {
+        super(HttpStatus.BAD_REQUEST, "Illegal action");
+    }
+}
