@@ -106,6 +106,10 @@ public class Player {
         this.ties = gamesTied;
     }
 
+    public int getTotalGames() {
+        return wins + losses + ties;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

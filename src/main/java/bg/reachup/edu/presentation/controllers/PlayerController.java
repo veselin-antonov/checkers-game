@@ -26,8 +26,11 @@ public class PlayerController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody List<PlayerDTO> all() {
-        return mapper.toDTOs(service.getAllPlayers());
+    public @ResponseBody List<PlayerDTO> all(
+            @RequestParam(value = "sortedBy", required = false) String sortedBy,
+            @RequestParam(value = "direction", required = false) String direction
+    ) {
+        return mapper.toDTOs(service.getAllPlayers(sortedBy, direction));
     }
 
     @GetMapping("/{id}")

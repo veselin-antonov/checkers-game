@@ -5,17 +5,23 @@ import bg.reachup.edu.buisness.exceptions.players.NoSuchUsernameFoundException;
 import bg.reachup.edu.buisness.exceptions.players.PlayerEmailAlreadyExistsException;
 import bg.reachup.edu.buisness.exceptions.players.PlayerUsernameAlreadyExistsException;
 import bg.reachup.edu.data.entities.Player;
+import bg.reachup.edu.data.entities.SortingCategory;
+import bg.reachup.edu.data.entities.SortingDirection;
 import bg.reachup.edu.data.repositories.PlayerRepository;
 import bg.reachup.edu.presentation.mappers.PlayerMapper;
+import bg.reachup.edu.presentation.validation.EnumValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import javax.annotation.PostConstruct;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
+@Validated
 public class PlayerService {
     final PlayerRepository repository;
     final PlayerMapper mapper;
@@ -26,8 +32,22 @@ public class PlayerService {
         this.mapper = mapper;
     }
 
-    public List<Player> getAllPlayers() {
-        return repository.findAll();
+    public List<Player> getAllPlayers(
+            @EnumValue(enumClass = SortingCategory.class, caseSensitive = false) String category,
+            @EnumValue(enumClass = SortingDirection.class, caseSensitive = false) String direction
+    ) {
+        SortingCategory sortingCategory = category == null ? SortingCategory.UNSORTED : SortingCategory.valueOf(category.toUpperCase());
+        SortingDirection sortingDirection = direction == null ? SortingDirection.DESCENDING : SortingDirection.valueOf(direction.toUpperCase());
+
+        Comparator<Player> comparator = sortingCategory.comparator();
+        if (sortingDirection == SortingDirection.DESCENDING) {
+            comparator = comparator.reversed();
+        }
+
+        return repository.findAll()
+                .stream()
+                .sorted(comparator)
+                .toList();
     }
 
     public Player searchByID(Long id) {

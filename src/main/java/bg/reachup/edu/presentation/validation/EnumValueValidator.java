@@ -7,16 +7,22 @@ import java.util.List;
 
 class EnumValueValidator implements ConstraintValidator<EnumValue, CharSequence> {
     private List<String> acceptedValues;
+    private boolean caseSensitive;
 
     @Override
     public void initialize(EnumValue constraintAnnotation) {
         acceptedValues = Arrays.stream(constraintAnnotation.enumClass().getEnumConstants())
                 .map(Enum::name)
                 .toList();
+        caseSensitive = constraintAnnotation.caseSensitive();
     }
 
     @Override
     public boolean isValid(CharSequence value, ConstraintValidatorContext context) {
-        return value == null || acceptedValues.contains(value.toString());
+        if (value == null) {
+            return true;
+        }
+        value = caseSensitive ? value.toString() : value.toString().toUpperCase();
+        return acceptedValues.contains(value);
     }
 }

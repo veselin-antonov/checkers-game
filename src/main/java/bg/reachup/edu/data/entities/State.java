@@ -8,13 +8,17 @@ import java.util.List;
 import java.util.Objects;
 
 @Entity
+@Table(name = "states")
 public class State {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "board")
     @Convert(converter = BoardConverter.class)
     private Board board;
+    @Column(name = "player1turn")
     private boolean player1Turn;
+    @Column(name = "finished")
     private boolean finished;
     @Transient
     private final List<Piece> whitePieces;
