@@ -15,7 +15,7 @@ import static java.lang.annotation.ElementType.*;
 @Constraint(validatedBy = EnumValueValidator.class)
 public @interface EnumValue {
     Class<? extends Enum<?>> enumClass();
-    boolean caseSensitive() default true;
+    boolean caseSensitive() default false;
     String message() default "No such value for specified enumeration!";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

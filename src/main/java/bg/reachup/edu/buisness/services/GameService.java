@@ -48,9 +48,6 @@ public class GameService {
         if (game.getMode() == GameMode.MULTIPLAYER) {
             player2 = playerService.searchByUsername(game.getPlayer2().getUsername());
 
-            ExampleMatcher ignoringMatcher = ExampleMatcher
-                    .matchingAll()
-                    .withIgnorePaths("isPlayer1Turn");
 
             Example<Game> example1 = Example.of(
                     new Game(
@@ -58,8 +55,8 @@ public class GameService {
                             player1,
                             player2,
                             null
-                    ),
-                    ignoringMatcher);
+                    )
+            );
 
             Example<Game> example2 = Example.of(
                     new Game(
@@ -67,10 +64,14 @@ public class GameService {
                             player2,
                             player1,
                             null
-                    ),
-                    ignoringMatcher);
+                    )
+            );
 
-            if (repository.exists(example1) || repository.exists(example2)) {
+            if (repository.exists(example1) && !repository.findOne(example1).get().getState().isFinished()) {
+                throw new DuplicateUnfinishedGameException();
+            }
+
+            if (repository.exists(example2) && !repository.findOne(example2).get().getState().isFinished()) {
                 throw new DuplicateUnfinishedGameException();
             }
         }

@@ -33,8 +33,8 @@ public class PlayerService {
     }
 
     public List<Player> getAllPlayers(
-            @EnumValue(enumClass = SortingCategory.class, caseSensitive = false) String category,
-            @EnumValue(enumClass = SortingDirection.class, caseSensitive = false) String direction
+            @EnumValue(enumClass = SortingCategory.class) String category,
+            @EnumValue(enumClass = SortingDirection.class) String direction
     ) {
         SortingCategory sortingCategory = category == null ? SortingCategory.UNSORTED : SortingCategory.valueOf(category.toUpperCase());
         SortingDirection sortingDirection = direction == null ? SortingDirection.DESCENDING : SortingDirection.valueOf(direction.toUpperCase());
