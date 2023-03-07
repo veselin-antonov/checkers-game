@@ -23,13 +23,11 @@ import java.util.List;
 @Service
 @Validated
 public class PlayerService {
-    final PlayerRepository repository;
-    final PlayerMapper mapper;
+    private final PlayerRepository repository;
 
     @Autowired
-    public PlayerService(PlayerRepository repository, PlayerMapper mapper) {
+    public PlayerService(PlayerRepository repository) {
         this.repository = repository;
-        this.mapper = mapper;
     }
 
     public List<Player> getAllPlayers(
@@ -60,11 +58,13 @@ public class PlayerService {
                 .withIgnorePaths("gamesWon", "gamesLost", "gamesWon")
                 .withStringMatcher(ExampleMatcher.StringMatcher.EXACT);
         Example<Player> playerExample = Example.of(player, playerMatcher);
-        List<Player> playerOptional = repository.findAll(playerExample);
-        if(playerOptional.isEmpty()) {
+
+        List<Player> conflictingPlayers = repository.findAll(playerExample);
+
+        if(conflictingPlayers.isEmpty()) {
             return repository.save(player);
         }
-        Player existingPlayer = playerOptional.get(0);
+        Player existingPlayer = conflictingPlayers.get(0);
         if (existingPlayer.getUsername().equals(player.getUsername())) {
             throw new PlayerUsernameAlreadyExistsException();
         } else {

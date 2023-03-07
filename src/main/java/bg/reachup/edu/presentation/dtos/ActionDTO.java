@@ -20,4 +20,13 @@ public record ActionDTO (
         CoordinatesDTO piecePosition,
         @NotBlank(message = "Executor must not be null!")
         String executor
-) {}
+) {
+        public ActionDTO {
+                if (actionType != null) {
+                        actionType = actionType.toUpperCase();
+                }
+                if (direction != null) {
+                        direction = direction.toUpperCase().replace(' ', '_');
+                }
+        }
+}

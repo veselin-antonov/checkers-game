@@ -7,28 +7,34 @@ import bg.reachup.edu.buisness.exceptions.state.OpponentPieceException;
 import bg.reachup.edu.data.entities.*;
 import bg.reachup.edu.data.repositories.StateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.beans.BeanProperty;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Service
 public class StateService {
+
     private final StateRepository repository;
 
     @Autowired
-    public StateService(StateRepository repository) {
+    public StateService(@Qualifier("stateRepository") StateRepository repository) {
         this.repository = repository;
     }
 
-    public void updateState(State toUpdate, State newState) {
-        repository.findById(toUpdate.getId());
-        toUpdate.setBoard(newState.getBoard());
-        toUpdate.setPlayer1Turn(newState.isPlayer1Turn());
-        toUpdate.setFinished(newState.isFinished());
-        repository.save(toUpdate);
+    public void updateState(Long id, final State newState) {
+        Optional<State> optionalState = repository.findById(id);
+        if (optionalState.isPresent()) {
+            State toUpdate = optionalState.get();
+            toUpdate.setBoard(newState.getBoard());
+            toUpdate.setPlayer1Turn(newState.isPlayer1Turn());
+            toUpdate.setFinished(newState.isFinished());
+            repository.save(toUpdate);
+        }
     }
 
     public List<State> getChildren(State state, String executor) {
@@ -354,7 +360,7 @@ public class StateService {
         if (depth == 0) {
             return new Pair<>(state, evaluate(state));
         }
-        List<State> children = getChildren(state, null);
+        List<State> children = getChildren(state, "Bot");
         State firstChild = children.get(0);
         Pair<State, Integer> bestChoice = new Pair<>(
                 firstChild,
