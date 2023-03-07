@@ -4,7 +4,6 @@ import bg.reachup.edu.buisness.services.GameService;
 import bg.reachup.edu.presentation.dtos.ActionDTO;
 import bg.reachup.edu.presentation.dtos.GameGetDTO;
 import bg.reachup.edu.presentation.dtos.GamePostDTO;
-import bg.reachup.edu.presentation.dtos.PlayerDTO;
 import bg.reachup.edu.presentation.mappers.ActionMapper;
 import bg.reachup.edu.presentation.mappers.GameMapper;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
-import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -131,37 +130,38 @@ public class GameService {
         }
 
         State newGameState = stateService.executeAction(action, gameState);
-
-        if (
-                game.getMode() == GameMode.SINGLEPLAYER
-                        && !game.getState().isPlayer1Turn()
-                        && !game.getState().isFinished()
-        ) {
-            newGameState = stateService.findBestMove(newGameState, game.getDifficulty().value());
-            stateService.updateState(gameState, newGameState);
-        }
-
-        if (stateService.isFinal(newGameState)) {
-            int gameEvaluation = stateService.evaluate(newGameState);
-            if (gameEvaluation > 0) {
-                game.getPlayer1().giveWin();
-                game.getPlayer2().giveLoss();
-            } else if (gameEvaluation < 0) {
-                game.getPlayer1().giveLoss();
-                game.getPlayer2().giveWin();
-            } else {
-                game.getPlayer1().giveTie();
-                game.getPlayer2().giveTie();
-            }
-            newGameState.setFinished(true);
-        }
-
+        checkForCompletion(game);
         stateService.updateState(gameState, newGameState);
-        repository.save(game);
+
+
 
         LoggerFactory.getLogger(Game.class).info("%n%s%n".formatted(action));
         LoggerFactory.getLogger(GameService.class).info("%n-------------------%n%s%n-------------------".formatted(game));
         return game;
+    }
+
+    public void checkForCompletion(Game game) {
+        State gameState = game.getState();
+
+        if (stateService.isFinal(gameState)) {
+
+            Player player1 = game.getPlayer1();
+            Player player2 = game.getPlayer2();
+            int gameEvaluation = stateService.evaluate(gameState);
+
+            if (gameEvaluation > 0) {
+                player1.giveWin();
+                player2.giveLoss();
+            } else if (gameEvaluation < 0) {
+                player1.giveLoss();
+                player2.giveWin();
+            } else {
+                player1.giveTie();
+                player2.giveTie();
+            }
+
+            gameState.setFinished(true);
+        }
     }
 
     public Game joinGame(Long id, String playerUsername) {

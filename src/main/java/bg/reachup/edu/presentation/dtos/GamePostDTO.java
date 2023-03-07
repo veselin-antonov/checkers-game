@@ -3,12 +3,14 @@ package bg.reachup.edu.presentation.dtos;
 import bg.reachup.edu.data.entities.Difficulty;
 import bg.reachup.edu.data.entities.GameMode;
 import bg.reachup.edu.presentation.validation.EnumValue;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 public record GamePostDTO(
+        @JsonIgnore
         Long id,
         @NotNull(message = "Missing player username!")
         @Pattern(regexp = "[a-zA-Z1-9_]{6,18}", message = "Invalid player username!")

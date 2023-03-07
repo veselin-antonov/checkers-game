@@ -7,6 +7,7 @@ import bg.reachup.edu.buisness.exceptions.state.OpponentPieceException;
 import bg.reachup.edu.data.entities.*;
 import bg.reachup.edu.data.repositories.StateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
