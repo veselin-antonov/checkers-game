@@ -21,30 +21,19 @@ public class GameService {
     private final GameRepository repository;
     private final PlayerService playerService;
     private final StateService stateService;
+    private final GameEndHandlerService gameEndHandlerService;
     private final BotService botService;
-    private final BoardConverter boardConverter;
 
     private final Board startupBoard;
 
     @Autowired
-    public GameService(GameRepository repository, PlayerService playerService, StateService stateService, BotService botService, BoardConverter boardConverter) {
+    public GameService(GameRepository repository, PlayerService playerService, StateService stateService, GameEndHandlerService gameEndHandlerService, BotService botService, Board startupBoard) {
         this.repository = repository;
         this.playerService = playerService;
         this.stateService = stateService;
+        this.gameEndHandlerService = gameEndHandlerService;
         this.botService = botService;
-        this.boardConverter = boardConverter;
-        startupBoard = boardConverter.convertToEntityAttribute(
-                """
-                        _,O,_,O,_,O,_,O
-                        O,_,O,_,O,_,O,_
-                        _,O,_,O,_,O,_,O
-                        _,_,_,_,_,_,_,_
-                        _,_,_,_,_,_,_,_
-                        X,_,X,_,X,_,X,_
-                        _,X,_,X,_,X,_,X
-                        X,_,X,_,X,_,X,_
-                        """
-        );
+        this.startupBoard = startupBoard;
     }
 
     public List<Game> getAll() {
@@ -180,28 +169,9 @@ public class GameService {
         }
 
         State newGameState = stateService.executeAction(action, gameState);
-
-        if (stateService.isFinal(newGameState)) {
-
-            Player player1 = game.getPlayer1();
-            Player player2 = game.getPlayer2();
-            int gameEvaluation = stateService.evaluate(newGameState);
-
-            if (gameEvaluation > 0) {
-                player1.giveWin();
-                player2.giveLoss();
-            } else if (gameEvaluation < 0) {
-                player1.giveLoss();
-                player2.giveWin();
-            } else {
-                player1.giveTie();
-                player2.giveTie();
-            }
-
-            newGameState.setFinished(true);
-        }
-
         stateService.updateState(gameState.getId(), newGameState);
+
+        gameEndHandlerService.checkForGameEnd(game);
 
         LOGGER.info("%n%s%n".formatted(action));
         LOGGER.info("%n-------------------%n%s%n-------------------".formatted(game));
