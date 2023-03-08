@@ -27,13 +27,24 @@ public class GameService {
     private final Board startupBoard;
 
     @Autowired
-    public GameService(GameRepository repository, PlayerService playerService, StateService stateService, GameEndHandlerService gameEndHandlerService, BotService botService, Board startupBoard) {
+    public GameService(GameRepository repository, PlayerService playerService, StateService stateService, GameEndHandlerService gameEndHandlerService, BotService botService, BoardConverter boardConverter) {
         this.repository = repository;
         this.playerService = playerService;
         this.stateService = stateService;
         this.gameEndHandlerService = gameEndHandlerService;
         this.botService = botService;
-        this.startupBoard = startupBoard;
+        this.startupBoard = boardConverter.convertToEntityAttribute(
+                """
+                        _,O,_,O,_,O,_,O
+                        O,_,O,_,O,_,O,_
+                        _,O,_,O,_,O,_,O
+                        _,_,_,_,_,_,_,_
+                        _,_,_,_,_,_,_,_
+                        X,_,X,_,X,_,X,_
+                        _,X,_,X,_,X,_,X
+                        X,_,X,_,X,_,X,_
+                        """
+        );
     }
 
     public List<Game> getAll() {
