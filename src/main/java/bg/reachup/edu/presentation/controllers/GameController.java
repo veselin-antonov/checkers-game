@@ -6,6 +6,8 @@ import bg.reachup.edu.presentation.dtos.GameGetDTO;
 import bg.reachup.edu.presentation.dtos.GamePostDTO;
 import bg.reachup.edu.presentation.mappers.ActionMapper;
 import bg.reachup.edu.presentation.mappers.GameMapper;
+import bg.reachup.edu.presentation.validation.GameID;
+import bg.reachup.edu.presentation.validation.Username;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -13,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 import java.util.List;
 
 @Validated
@@ -35,7 +36,7 @@ public class GameController {
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<GameGetDTO> getAllGames() {
+    public List<GameGetDTO> getAll() {
         return gameMapper.toGetDTOs(service.getAll());
     }
 
@@ -44,33 +45,42 @@ public class GameController {
     @ResponseBody
     public GameGetDTO getByID(
 
-            @Pattern(regexp = "\\d+", message = "Game id must be a positive integer!")
-            @PathVariable("id")
+            @PathVariable
+            @GameID
             String id
     ) {
         return gameMapper.toGetDTO(service.getByID(Long.parseLong(id)));
     }
 
     @PostMapping("")
-    @ResponseStatus(value = HttpStatus.CREATED, reason = "New game was created successfully")
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "New game successfully created")
     @ResponseBody
     public GamePostDTO createNewGame(@RequestBody @Valid GamePostDTO gamePostDTO) {
         return gameMapper.toPostDTO(service.createNewGame(gameMapper.toEntity(gamePostDTO)));
     }
 
     @PostMapping("/{id}/players")
-    @ResponseStatus(value = HttpStatus.CREATED)
+    @ResponseStatus(value = HttpStatus.CREATED, reason = "Game joined successfully")
     @ResponseBody
-    public GamePostDTO joinGame(@PathVariable Long id, @RequestBody String player) {
-        return gameMapper.toPostDTO(service.joinGame(id, player));
+    public GamePostDTO joinGame(
+            @PathVariable
+            @GameID
+            String id,
+
+            @RequestBody
+            @NotNull
+            @Username
+            String username
+    ) {
+        return gameMapper.toPostDTO(service.joinGame(Long.parseLong(id), username));
     }
 
-    @PostMapping("/{id}")
+    @PostMapping("/{id}/moves")
     @ResponseStatus(HttpStatus.CREATED)
     @ResponseBody
     public GameGetDTO makeMove(
             @PathVariable("id")
-            @Pattern(regexp = "\\d+", message = "Invalid game ID!")
+            @GameID
             String gameID,
 
             @NotNull
@@ -84,5 +94,15 @@ public class GameController {
                         actionMapper.toEntity(actionDTO)
                 )
         );
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(value = HttpStatus.NO_CONTENT, reason = "Game successfully deleted")
+    public void deleteByID(
+            @PathVariable("id")
+            @GameID
+            String gameID
+    ) {
+        service.deleteByID(Long.parseLong(gameID));
     }
 }

@@ -5,6 +5,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 public class DuplicateUnfinishedGameException extends ResponseStatusException {
     public DuplicateUnfinishedGameException() {
-        super(HttpStatus.BAD_REQUEST, "Unfinished game between these two players already exists");
+        super(HttpStatus.CONFLICT, "Unfinished game between these two players already exists");
     }
 }

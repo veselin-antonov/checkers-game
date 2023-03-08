@@ -17,6 +17,10 @@ public class Board {
         this.board = board;
     }
 
+    public Board(Board board) {
+        this.board = deepClone(board.board);
+    }
+
     /**
      * Fills the specified lists with references to all the
      * corresponding pieces on the board

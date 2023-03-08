@@ -7,17 +7,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.ElementType.FIELD;
+import static java.lang.annotation.ElementType.PARAMETER;
 
 @Documented
 @Target({FIELD, PARAMETER})
 @Retention(RetentionPolicy.RUNTIME)
-@Constraint(validatedBy = EnumValueValidator.class)
-public @interface EnumValue {
-    Class<? extends Enum<?>> enumClass();
-    boolean caseSensitive() default false;
-    String message() default "No such value for specified enumeration!";
+@Constraint(validatedBy = UsernameValidator.class)
+public @interface Username {
+    String message() default "Invalid username!";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
-

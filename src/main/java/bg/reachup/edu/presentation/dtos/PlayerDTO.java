@@ -1,13 +1,14 @@
 package bg.reachup.edu.presentation.dtos;
 
+import bg.reachup.edu.presentation.validation.Username;
+
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Null;
-import javax.validation.constraints.Pattern;
 
 public record PlayerDTO(
         @NotNull(message = "Missing player username!")
-        @Pattern(regexp = "[a-zA-Z1-9_]{6,18}", message = "Invalid player username!")
+        @Username
         String username,
         @NotNull(message = "Missing player email!")
         @Email(message = "Invalid player email!")

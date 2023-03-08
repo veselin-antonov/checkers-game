@@ -8,7 +8,6 @@ import bg.reachup.edu.data.entities.Player;
 import bg.reachup.edu.data.entities.SortingCategory;
 import bg.reachup.edu.data.entities.SortingDirection;
 import bg.reachup.edu.data.repositories.PlayerRepository;
-import bg.reachup.edu.presentation.mappers.PlayerMapper;
 import bg.reachup.edu.presentation.validation.EnumValue;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -34,12 +33,15 @@ public class PlayerService {
             @EnumValue(enumClass = SortingCategory.class) String category,
             @EnumValue(enumClass = SortingDirection.class) String direction
     ) {
-        SortingCategory sortingCategory = category == null ? SortingCategory.UNSORTED : SortingCategory.valueOf(category.toUpperCase());
-        SortingDirection sortingDirection = direction == null ? SortingDirection.DESCENDING : SortingDirection.valueOf(direction.toUpperCase());
+        SortingCategory sortingCategory = SortingCategory.valueOf(category.toUpperCase());
+        SortingDirection sortingDirection = SortingDirection.valueOf(direction.toUpperCase());
 
         Comparator<Player> comparator = sortingCategory.comparator();
         if (sortingDirection == SortingDirection.DESCENDING) {
             comparator = comparator.reversed();
+        }
+        if (sortingCategory != SortingCategory.ALPHABETICALLY) {
+            comparator = comparator.thenComparing(SortingCategory.ALPHABETICALLY.comparator());
         }
 
         return repository.findAll()

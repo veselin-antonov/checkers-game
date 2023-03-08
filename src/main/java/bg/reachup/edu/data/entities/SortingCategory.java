@@ -3,7 +3,7 @@ package bg.reachup.edu.data.entities;
 import java.util.Comparator;
 
 public enum SortingCategory {
-    UNSORTED(Comparator.comparingLong(Player::getId)),
+    ALPHABETICALLY(Comparator.comparing(Player::getUsername)),
     WINS(Comparator.comparingInt(Player::getWins)),
     LOSSES(Comparator.comparingInt(Player::getLosses)),
     TIES(Comparator.comparingInt(Player::getTies)),

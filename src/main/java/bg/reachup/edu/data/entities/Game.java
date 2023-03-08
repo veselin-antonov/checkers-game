@@ -65,7 +65,7 @@ public class Game {
     }
 
     public Player getPlayer2() {
-        return mode == GameMode.SINGLEPLAYER ? new Player("Bot", null) : player2;
+        return player2;
     }
 
     public void setPlayer2(Player player2) {

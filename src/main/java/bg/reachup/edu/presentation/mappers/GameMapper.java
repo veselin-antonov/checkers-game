@@ -42,6 +42,6 @@ public interface GameMapper {
 
     @Named("createPlayer")
     default Player createPlayer(String username) {
-        return new Player(username, null);
+        return username == null ? null : new Player(username, null);
     }
 }

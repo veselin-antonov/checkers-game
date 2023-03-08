@@ -3,6 +3,7 @@ package bg.reachup.edu.presentation.controllers;
 import bg.reachup.edu.buisness.services.PlayerService;
 import bg.reachup.edu.presentation.dtos.PlayerDTO;
 import bg.reachup.edu.presentation.mappers.PlayerMapper;
+import bg.reachup.edu.presentation.validation.GameID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -26,22 +27,35 @@ public class PlayerController {
 
     @GetMapping("")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody List<PlayerDTO> all(
-            @RequestParam(value = "sortedBy", required = false) String sortedBy,
-            @RequestParam(value = "direction", required = false) String direction
+    @ResponseBody
+    public List<PlayerDTO> getAll(
+
+            @RequestParam(value = "sortedBy", required = false, defaultValue = "unsorted")
+            String sortedBy,
+
+            @RequestParam(value = "direction", required = false, defaultValue = "descending")
+            String direction
     ) {
         return mapper.toDTOs(service.getAllPlayers(sortedBy, direction));
     }
 
     @GetMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public @ResponseBody PlayerDTO searchPlayerByID(@PathVariable Long id) {
-        return mapper.toDTO(service.searchByID(id));
+    public @ResponseBody PlayerDTO getByID(
+            @PathVariable
+            @GameID
+            String id
+    ) {
+        return mapper.toDTO(service.searchByID(Long.parseLong(id)));
     }
 
     @PostMapping("")
     @ResponseStatus(value = HttpStatus.CREATED, reason = "Successfully registered new player")
-    public @ResponseBody PlayerDTO registerPlayer(@Valid @RequestBody PlayerDTO playerDTO) {
+    public @ResponseBody PlayerDTO register(
+            @Valid
+            @RequestBody
+            PlayerDTO playerDTO
+    ) {
         return mapper.toDTO(service.registerPlayer(mapper.toEntity(playerDTO)));
     }
 }

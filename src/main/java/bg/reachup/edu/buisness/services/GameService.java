@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
+import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
@@ -23,6 +24,8 @@ public class GameService {
     private final BotService botService;
     private final BoardConverter boardConverter;
 
+    private final Board startupBoard;
+
     @Autowired
     public GameService(GameRepository repository, PlayerService playerService, StateService stateService, BotService botService, BoardConverter boardConverter) {
         this.repository = repository;
@@ -30,52 +33,7 @@ public class GameService {
         this.stateService = stateService;
         this.botService = botService;
         this.boardConverter = boardConverter;
-    }
-
-    public List<Game> getAll() {
-        return repository.findAll();
-    }
-
-    public Game getByID(Long id) {
-        return repository.findById(id).orElseThrow(NoSuchGameIDException::new);
-    }
-
-    public Game createNewGame(Game game) {
-        Player player1 = playerService.searchByUsername(game.getPlayer1().getUsername());
-        Player player2 = null;
-
-        if (game.getMode() == GameMode.MULTIPLAYER) {
-            player2 = playerService.searchByUsername(game.getPlayer2().getUsername());
-
-
-            Example<Game> example1 = Example.of(
-                    new Game(
-                            null,
-                            player1,
-                            player2,
-                            null
-                    )
-            );
-
-            Example<Game> example2 = Example.of(
-                    new Game(
-                            null,
-                            player2,
-                            player1,
-                            null
-                    )
-            );
-
-            if (repository.exists(example1) && !repository.findOne(example1).get().getState().isFinished()) {
-                throw new DuplicateUnfinishedGameException();
-            }
-
-            if (repository.exists(example2) && !repository.findOne(example2).get().getState().isFinished()) {
-                throw new DuplicateUnfinishedGameException();
-            }
-        }
-
-        Board board = boardConverter.convertToEntityAttribute(
+        startupBoard = boardConverter.convertToEntityAttribute(
                 """
                         _,O,_,O,_,O,_,O
                         O,_,O,_,O,_,O,_
@@ -87,9 +45,44 @@ public class GameService {
                         X,_,X,_,X,_,X,_
                         """
         );
+    }
+
+    public List<Game> getAll() {
+        return repository.findAll();
+    }
+
+    public Game getByID(Long id) {
+        return repository.findById(id).orElseThrow(() -> new NoSuchGameIDException(id));
+    }
+
+    public Game createNewGame(Game game) {
+        Player player1 = playerService.searchByUsername(game.getPlayer1().getUsername());
+        Player player2 = null;
+
+        if (game.getMode() == GameMode.SINGLEPLAYER && game.getPlayer2() != null) {
+            throw new SingleplayerGameException();
+        }
+
+        if (game.getMode() == GameMode.MULTIPLAYER && game.getPlayer2() != null) {
+            player2 = playerService.searchByUsername(game.getPlayer2().getUsername());
+        }
+
+        if (player1.equals(player2)) {
+            throw new SamePlayerException();
+        }
+
+        game.setPlayer1(player1);
+        game.setPlayer2(player2);
+
+        checkForConflict(game);
+
+        Board board = getStartupBoard();
+
         State state = new State(board, true);
         game.setState(state);
-        return repository.save(new Game(
+        return repository.save(new
+
+                        Game(
                         game.getMode(),
                         game.getDifficulty(),
                         player1,
@@ -97,6 +90,64 @@ public class GameService {
                         state
                 )
         );
+    }
+
+    public Game joinGame(Long id, String playerUsername) {
+        Game game = getByID(id);
+        if (game.getMode() == GameMode.SINGLEPLAYER) {
+            throw new SingleplayerGameException();
+        }
+        if (game.getPlayer2() != null) {
+            throw new GameAlreadyFullException();
+        }
+        Player player = playerService.searchByUsername(playerUsername);
+        game.setPlayer2(player);
+
+        checkForConflict(game);
+
+        return repository.save(game);
+    }
+
+    private void checkForConflict(Game game) {
+        ExampleMatcher matcher = ExampleMatcher
+                .matchingAll()
+                .withIncludeNullValues()
+                .withIgnorePaths("id", "state");
+
+        Example<Game> example1 = Example.of(
+                new Game(
+                        game.getMode(),
+                        game.getDifficulty(),
+                        game.getPlayer1(),
+                        game.getPlayer2(),
+                        null
+                ),
+                matcher
+        );
+
+        Example<Game> example2 = Example.of(
+                new Game(
+                        game.getMode(),
+                        game.getDifficulty(),
+                        game.getPlayer2(),
+                        game.getPlayer1(),
+                        null
+                ),
+                matcher
+        );
+
+        if (repository.exists(example1) && !repository.findOne(example1).get().getState().isFinished()) {
+            throw new DuplicateUnfinishedGameException();
+        }
+
+        if (repository.exists(example2) && !repository.findOne(example2).get().getState().isFinished()) {
+            throw new DuplicateUnfinishedGameException();
+        }
+    }
+
+    public void deleteByID(Long gameID) {
+        Game game = getByID(gameID);
+        repository.delete(game);
     }
 
     /*
@@ -160,17 +211,8 @@ public class GameService {
         return game;
     }
 
-    public Game joinGame(Long id, String playerUsername) {
-        Game game = getByID(id);
-        if (game.getMode() == GameMode.SINGLEPLAYER) {
-            throw new SingleplayerGameException();
-        }
-        if (game.getPlayer2() != null) {
-            throw new GameAlreadyFullException();
-        }
-        Player player = playerService.searchByUsername(playerUsername);
-        game.setPlayer2(player);
-        return repository.save(game);
+    public Board getStartupBoard() {
+        return new Board(startupBoard);
     }
 
     @PostConstruct
@@ -182,7 +224,7 @@ public class GameService {
                             playerService.searchByID(1L),
                             playerService.searchByID(2L),
                             new State(
-                                    boardConverter.convertToEntityAttribute("_,X,_,X,_,X,_,X"),
+                                    getStartupBoard(),
                                     true
                             )
                     ),
@@ -191,7 +233,7 @@ public class GameService {
                             playerService.searchByID(3L),
                             playerService.searchByID(2L),
                             new State(
-                                    boardConverter.convertToEntityAttribute("_,Oo,_,O,_,O,_,O"),
+                                    getStartupBoard(),
                                     true
                             )
                     ),
@@ -200,7 +242,7 @@ public class GameService {
                             Difficulty.NORMAL,
                             playerService.searchByID(1L),
                             new State(
-                                    boardConverter.convertToEntityAttribute("_,X,_,X,_,Xx,_,X"),
+                                    getStartupBoard(),
                                     true
                             )
                     )
