@@ -7,6 +7,7 @@ import bg.reachup.edu.data.repositories.GameRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -15,19 +16,18 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 
 @Service
-public class GameService {
+public class GameServiceImpl implements GameService {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(GameService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(GameServiceImpl.class);
     private final GameRepository repository;
     private final PlayerService playerService;
     private final StateService stateService;
     private final GameEndHandlerService gameEndHandlerService;
-    private final BotService botService;
-
+    private BotService botService;
     private final Board startupBoard;
 
     @Autowired
-    public GameService(GameRepository repository, PlayerService playerService, StateService stateService, GameEndHandlerService gameEndHandlerService, BotService botService, BoardConverter boardConverter) {
+    public GameServiceImpl(GameRepository repository, PlayerService playerService, StateService stateService, GameEndHandlerService gameEndHandlerService, @Lazy BotService botService, BoardConverter boardConverter) {
         this.repository = repository;
         this.playerService = playerService;
         this.stateService = stateService;
@@ -71,14 +71,16 @@ public class GameService {
             throw new SamePlayerException();
         }
 
+        if (game.getMode() == GameMode.SINGLEPLAYER) {
+            player2 = playerService.searchByUsername(game.getDifficulty().botName());
+        }
+
         game.setPlayer1(player1);
         game.setPlayer2(player2);
 
         checkForConflict(game);
 
-        Board board = getStartupBoard();
-
-        State state = new State(board, true);
+        State state = new State(new Board(startupBoard), true);
         game.setState(state);
         return repository.save(new
 
@@ -182,6 +184,8 @@ public class GameService {
         State newGameState = stateService.executeAction(action, gameState);
         stateService.updateState(gameState.getId(), newGameState);
 
+        game = repository.findById(game.getId()).get();
+
         gameEndHandlerService.checkForGameEnd(game);
 
         LOGGER.info("%n%s%n".formatted(action));
@@ -192,12 +196,8 @@ public class GameService {
         return game;
     }
 
-    public Board getStartupBoard() {
-        return new Board(startupBoard);
-    }
-
     @PostConstruct
-    private void loadTestData() {
+    private void loadData() {
         if (repository.count() == 0) {
             repository.saveAll(List.of(
                     new Game(
@@ -205,7 +205,7 @@ public class GameService {
                             playerService.searchByID(1L),
                             playerService.searchByID(2L),
                             new State(
-                                    getStartupBoard(),
+                                    new Board(startupBoard),
                                     true
                             )
                     ),
@@ -214,7 +214,7 @@ public class GameService {
                             playerService.searchByID(3L),
                             playerService.searchByID(2L),
                             new State(
-                                    getStartupBoard(),
+                                    new Board(startupBoard),
                                     true
                             )
                     ),
@@ -222,8 +222,9 @@ public class GameService {
                             GameMode.SINGLEPLAYER,
                             Difficulty.NORMAL,
                             playerService.searchByID(1L),
+                            playerService.searchByUsername(Difficulty.NORMAL.botName()),
                             new State(
-                                    getStartupBoard(),
+                                    new Board(startupBoard),
                                     true
                             )
                     )

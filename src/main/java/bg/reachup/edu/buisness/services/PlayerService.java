@@ -63,7 +63,7 @@ public class PlayerService {
 
         List<Player> conflictingPlayers = repository.findAll(playerExample);
 
-        if(conflictingPlayers.isEmpty()) {
+        if (conflictingPlayers.isEmpty()) {
             return repository.save(player);
         }
         Player existingPlayer = conflictingPlayers.get(0);
@@ -79,8 +79,19 @@ public class PlayerService {
     }
 
     @PostConstruct
-    private void loadTestData() {
-        if (repository.count() == 0) {
+    private void loadData() {
+        Player[] bots = {
+                new Player("Easy_Bot", "easy_bot@bots.com"),
+                new Player("Normal_bot", "normal_bot@bots.com"),
+                new Player("Hard_Bot", "hard_bot@bots.com")
+        };
+        for (Player bot : bots) {
+            if (!repository.exists(Example.of(bot))) {
+                repository.save(bot);
+            }
+        }
+
+        if (repository.count() <= 3) {
             repository.saveAll(List.of(
                             new Player(
                                     "Ivancho_07",

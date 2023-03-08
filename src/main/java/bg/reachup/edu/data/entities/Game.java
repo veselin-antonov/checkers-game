@@ -19,17 +19,7 @@ public class Game {
     }
 
     public Game(GameMode mode, Player player1, Player player2, State state) {
-        this.mode = mode;
-        this.player1 = player1;
-        this.player2 = player2;
-        this.state = state;
-    }
-
-    public Game(GameMode mode, Difficulty difficulty, Player player1, State state) {
-        this.mode = mode;
-        this.difficulty = difficulty;
-        this.player1 = player1;
-        this.state = state;
+        this(mode, null, player1, player2, state);
     }
 
     @Id

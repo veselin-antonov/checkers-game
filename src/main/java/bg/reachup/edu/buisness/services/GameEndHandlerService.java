@@ -1,6 +1,7 @@
 package bg.reachup.edu.buisness.services;
 
 import bg.reachup.edu.data.entities.Game;
+import bg.reachup.edu.data.entities.GameMode;
 import bg.reachup.edu.data.entities.Player;
 import bg.reachup.edu.data.entities.State;
 import bg.reachup.edu.data.repositories.GameRepository;
@@ -20,7 +21,10 @@ public class GameEndHandlerService {
 
     public void checkForGameEnd(Game game) {
         State gameState = game.getState();
-        if (stateService.isFinal(gameState)) {
+        if (!stateService.isFinal(gameState)) {
+            return;
+        }
+        if (game.getMode() == GameMode.MULTIPLAYER) {
 
             Player player1 = game.getPlayer1();
             Player player2 = game.getPlayer2();
@@ -36,9 +40,9 @@ public class GameEndHandlerService {
                 player1.giveTie();
                 player2.giveTie();
             }
-
-            gameState.setFinished(true);
-            stateService.updateState(gameState.getId(), gameState);
+            gameRepository.save(game);
         }
+        gameState.setFinished(true);
+        stateService.updateState(gameState.getId(), gameState);
     }
 }

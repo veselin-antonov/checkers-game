@@ -4,43 +4,25 @@ import bg.reachup.edu.data.entities.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
-public class BotService {
-    private final static Logger LOGGER = LoggerFactory.getLogger(BotService.class);
+public class BotServiceImpl implements BotService{
+    private final static Logger LOGGER = LoggerFactory.getLogger(BotServiceImpl.class);
     private final StateService stateService;
-    private final GameService gameService;
+    private GameService gameService;
 
     @Autowired
-    public BotService(StateService stateService, GameService gameService) {
+    public BotServiceImpl(StateService stateService, @Lazy GameService gameService) {
         this.stateService = stateService;
         this.gameService = gameService;
     }
 
-//    @Async
-//    public void botMakeMove(Game game) {
-//        LOGGER.info("Bot woke up.");
-//        if (
-//                game.getMode() == GameMode.SINGLEPLAYER
-//                        && !game.getState().isPlayer1Turn()
-//                        && !game.getState().isFinished()
-//        ) {
-//            LOGGER.info("Bot started thinking...");
-//
-//            State newGameState = stateService.findBestMove(game.getState(), game.getDifficulty().value());
-//            stateService.updateState(game.getState().getId(), newGameState);
-//
-//            gameEndHandlerService.checkForGameEnd(game);
-//
-//            LOGGER.info("Bot made a move! -> " + newGameState.getOriginAction());
-//        }
-//        LOGGER.info("Bot fell asleep.");
-//    }
-
     @Async
     public void botMakeMove(Game game) {
+        LOGGER.info("Bot woke up.");
         if (
                 game.getMode() == GameMode.SINGLEPLAYER
                         && !game.getState().isPlayer1Turn()
@@ -49,7 +31,13 @@ public class BotService {
             LOGGER.info("Bot started thinking...");
 
             Action bestMove = stateService.findBestMove(game.getState(), game.getDifficulty().value()).getOriginAction();
-            gameService.makeMove(game, bestMove);
+            Action botMove = new Action(
+                    bestMove.actionType(),
+                    bestMove.direction(),
+                    bestMove.piecePosition(),
+                    game.getPlayer2().getUsername()
+            );
+            gameService.makeMove(game, botMove);
 
             LOGGER.info("Bot found a move! -> " + bestMove);
         }

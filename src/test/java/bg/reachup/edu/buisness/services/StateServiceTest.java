@@ -5,6 +5,7 @@ import bg.reachup.edu.data.converters.BoardConverter;
 import bg.reachup.edu.data.entities.*;
 import bg.reachup.edu.data.repositories.MockStateRepository;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 class StateServiceTest {
@@ -13,6 +14,7 @@ class StateServiceTest {
     private final BoardConverter boardConverter = new BoardConverter();
 
     @Test
+    @DisplayName("Normal piece movement")
     void test1() {
         Board board = boardConverter.convertToEntityAttribute(
                 """
@@ -81,6 +83,7 @@ class StateServiceTest {
     }
 
     @Test
+    @DisplayName("Queen piece movement")
     void test2() {
         Board board = boardConverter.convertToEntityAttribute(
                 """
@@ -176,6 +179,7 @@ class StateServiceTest {
     }
 
     @Test
+    @DisplayName("Normal piece capture priority")
     void test3() {
         Board board = boardConverter.convertToEntityAttribute(
                 """
@@ -231,7 +235,68 @@ class StateServiceTest {
     }
 
     @Test
+    @DisplayName("Normal piece capture priority 2")
     void test4() {
+        Board board = boardConverter.convertToEntityAttribute(
+                """
+                        _,_,_,_,_,_,_,_
+                        _,_,_,_,_,_,_,_
+                        _,_,_,_,_,O,_,_
+                        _,_,_,_,_,_,_,_
+                        _,O,_,O,_,_,_,_
+                        _,_,X,_,_,_,_,_
+                        _,_,_,O,_,_,_,_
+                        _,_,_,_,_,_,_,_
+                        """
+        );
+        State state = new State(
+                board,
+                true
+        );
+
+        Coordinates piecePosition = new Coordinates(5, 2);
+        Action[] actions = {
+                new Action(ActionType.CAPTURE, Direction.UP_RIGHT, piecePosition, "TestUser"),
+                new Action(ActionType.MOVE, Direction.UP_LEFT, piecePosition, "TestUser"),
+                new Action(ActionType.MOVE, Direction.UP_RIGHT, piecePosition, "TestUser"),
+                new Action(ActionType.MOVE, Direction.DOWN_LEFT, piecePosition, "TestUser"),
+                new Action(ActionType.MOVE, Direction.DOWN_RIGHT, piecePosition, "TestUser"),
+                new Action(ActionType.CAPTURE, Direction.UP_LEFT, piecePosition, "TestUser"),
+                new Action(ActionType.CAPTURE, Direction.DOWN_LEFT, piecePosition, "TestUser"),
+                new Action(ActionType.CAPTURE, Direction.DOWN_RIGHT, piecePosition, "TestUser")
+        };
+
+
+        State expectedState = new State(
+                boardConverter.convertToEntityAttribute(
+                        """
+                                _,_,_,_,_,_,_,_
+                                _,_,_,_,_,_,X,_
+                                _,_,_,_,_,_,_,_
+                                _,_,_,_,_,_,_,_
+                                _,O,_,_,_,_,_,_
+                                _,_,_,_,_,_,_,_
+                                _,_,_,O,_,_,_,_
+                                _,_,_,_,_,_,_,_
+                                """
+                ),
+                false,
+                actions[0]
+        );
+
+        State actualState = stateService.executeAction(actions[0], state);
+
+        Assertions.assertEquals(expectedState, actualState);
+
+        for (int i = 2; i < actions.length; i++) {
+            Action currentAction = actions[i];
+            Assertions.assertThrows(IllegalActionException.class, () -> stateService.executeAction(currentAction, state));
+        }
+    }
+
+    @Test
+    @DisplayName("Queen piece multiple captures")
+    void test5() {
         Board board = boardConverter.convertToEntityAttribute(
                 """
                         _,_,_,_,_,_
@@ -306,65 +371,7 @@ class StateServiceTest {
     }
 
     @Test
-    void test5() {
-        Board board = boardConverter.convertToEntityAttribute(
-                """
-                        _,_,_,_,_,_,_,_
-                        _,_,_,_,_,_,_,_
-                        _,_,_,_,_,O,_,_
-                        _,_,_,_,_,_,_,_
-                        _,O,_,O,_,_,_,_
-                        _,_,X,_,_,_,_,_
-                        _,_,_,O,_,_,_,_
-                        _,_,_,_,_,_,_,_
-                        """
-        );
-        State state = new State(
-                board,
-                true
-        );
-
-        Coordinates piecePosition = new Coordinates(5, 2);
-        Action[] actions = {
-                new Action(ActionType.CAPTURE, Direction.UP_RIGHT, piecePosition, "TestUser"),
-                new Action(ActionType.MOVE, Direction.UP_LEFT, piecePosition, "TestUser"),
-                new Action(ActionType.MOVE, Direction.UP_RIGHT, piecePosition, "TestUser"),
-                new Action(ActionType.MOVE, Direction.DOWN_LEFT, piecePosition, "TestUser"),
-                new Action(ActionType.MOVE, Direction.DOWN_RIGHT, piecePosition, "TestUser"),
-                new Action(ActionType.CAPTURE, Direction.UP_LEFT, piecePosition, "TestUser"),
-                new Action(ActionType.CAPTURE, Direction.DOWN_LEFT, piecePosition, "TestUser"),
-                new Action(ActionType.CAPTURE, Direction.DOWN_RIGHT, piecePosition, "TestUser")
-        };
-
-
-        State expectedState = new State(
-                boardConverter.convertToEntityAttribute(
-                        """
-                                _,_,_,_,_,_,_,_
-                                _,_,_,_,_,_,X,_
-                                _,_,_,_,_,_,_,_
-                                _,_,_,_,_,_,_,_
-                                _,O,_,_,_,_,_,_
-                                _,_,_,_,_,_,_,_
-                                _,_,_,O,_,_,_,_
-                                _,_,_,_,_,_,_,_
-                                """
-                ),
-                false,
-                actions[0]
-        );
-
-        State actualState = stateService.executeAction(actions[0], state);
-
-        Assertions.assertEquals(expectedState, actualState);
-
-        for (int i = 2; i < actions.length; i++) {
-            Action currentAction = actions[i];
-            Assertions.assertThrows(IllegalActionException.class, () -> stateService.executeAction(currentAction, state));
-        }
-    }
-
-    @Test
+    @DisplayName("Normal piece multiple best captures")
     void test6() {
         Board board = boardConverter.convertToEntityAttribute(
                 """
@@ -452,6 +459,7 @@ class StateServiceTest {
     }
 
     @Test
+    @DisplayName("Executing multiple option capture")
     void test7() {
         Board board = boardConverter.convertToEntityAttribute(
                 """
@@ -540,5 +548,79 @@ class StateServiceTest {
             Action currentAction = actions[i];
             Assertions.assertThrows(IllegalActionException.class, () -> stateService.executeAction(currentAction, state));
         }
+    }
+
+    @Test
+    @DisplayName("Finding best move")
+    void test8() {
+        Board board = boardConverter.convertToEntityAttribute(
+                """
+                        _,_,_,_,_,_,_,_,_,_
+                        _,_,_,_,_,_,_,_,_,_
+                        _,_,_,_,_,_,_,O,_,_
+                        _,_,_,_,_,_,_,_,_,_
+                        _,O,_,_,_,O,_,O,_,_
+                        _,_,_,_,_,_,_,_,_,_
+                        _,_,_,O,_,O,_,_,_,_
+                        _,_,_,_,X,_,_,_,_,_
+                        _,_,_,_,_,_,_,_,_,_
+                        _,_,_,_,_,_,_,_,_,_
+                        """
+        );
+        State state = new State(
+                board,
+                true
+        );
+
+
+        State expectedState = new State(
+                boardConverter.convertToEntityAttribute(
+                        """
+                                _,_,_,_,_,_,_,_,_,_
+                                _,_,_,_,_,_,X,_,_,_
+                                _,_,_,_,_,_,_,_,_,_
+                                _,_,_,_,_,_,_,_,_,_
+                                _,O,_,_,_,O,_,_,_,_
+                                _,_,_,_,_,_,_,_,_,_
+                                _,_,_,O,_,_,_,_,_,_
+                                _,_,_,_,_,_,_,_,_,_
+                                _,_,_,_,_,_,_,_,_,_
+                                _,_,_,_,_,_,_,_,_,_
+                                """
+                ),
+                false
+        );
+
+        State actualState = stateService.findBestMove(state, 9);
+        Assertions.assertEquals(expectedState, actualState);
+    }
+
+    @Test
+    @DisplayName("Hard_Bot vs Easy_Bot")
+    void test9() {
+        State currentState = new State(
+                boardConverter.convertToEntityAttribute(
+                        """
+                                _,O,_,O,_,O,_,O
+                                O,_,O,_,O,_,O,_
+                                _,O,_,O,_,O,_,O
+                                _,_,_,_,_,_,_,_
+                                _,_,_,_,_,_,_,_
+                                X,_,X,_,X,_,X,_
+                                _,X,_,X,_,X,_,X
+                                X,_,X,_,X,_,X,_
+                                """
+                ),
+                true
+        );
+
+        while(!stateService.isFinal(currentState)) {
+            currentState = stateService.findBestMove(currentState, Difficulty.EASY.value());
+            if (!stateService.isFinal(currentState)) {
+                currentState = stateService.findBestMove(currentState, Difficulty.HARD.value());
+            }
+        }
+
+        Assertions.assertTrue(stateService.evaluate(currentState) < 0);
     }
 }

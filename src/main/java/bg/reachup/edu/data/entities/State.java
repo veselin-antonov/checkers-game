@@ -106,10 +106,16 @@ public class State {
     }
 
     public List<Piece> getWhitePieces() {
+        if(whitePieces.isEmpty() && board != null) {
+            init();
+        }
         return whitePieces;
     }
 
     public List<Piece> getBlackPieces() {
+        if(blackPieces.isEmpty() && board != null) {
+            init();
+        }
         return blackPieces;
     }
 
@@ -146,12 +152,12 @@ public class State {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         State state = (State) o;
-        return player1Turn == state.player1Turn && Objects.equals(id, state.id) && Objects.equals(board, state.board) && Objects.equals(originAction, state.originAction);
+        return player1Turn == state.player1Turn && finished == state.finished && Objects.equals(board, state.board);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, board, player1Turn, originAction);
+        return Objects.hash(board, player1Turn, finished);
     }
 
     @Override
