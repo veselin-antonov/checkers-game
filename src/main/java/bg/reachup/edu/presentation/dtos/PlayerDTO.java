@@ -11,7 +11,7 @@ public record PlayerDTO(
         @Username
         String username,
         @NotNull(message = "Missing player email!")
-        @Email(message = "Invalid player email!")
+        @Email(regexp = "[\\w.+-]+@[a-z0-9.-]+\\.[a-z]{2,3}", message = "Invalid player email!")
         String email,
         @Null(message = "Cannot alter player game statistics!")
         Integer wins,
